@@ -1,7 +1,11 @@
 "use client";
 
 import { buildProgram, type RunResult, runProgram } from "./harness";
+import { runRubyInBrowser } from "./ruby-client";
 import { transpile } from "./transpile";
+
+/** ブラウザ内で実行できる言語 */
+export type BrowserLanguage = "typescript" | "ruby";
 
 const TIMEOUT_MS = 3000;
 
@@ -23,8 +27,16 @@ function getWorkerUrl() {
  * 画面を固めないためと、無限ループのときに Worker ごと止められるようにするため
  */
 export async function runInBrowser(
+  language: BrowserLanguage,
   code: string,
   tests: { name: string; code: string }[] = [],
+): Promise<RunResult> {
+  return language === "ruby" ? runRubyInBrowser(code, tests) : runTypeScriptInBrowser(code, tests);
+}
+
+async function runTypeScriptInBrowser(
+  code: string,
+  tests: { name: string; code: string }[],
 ): Promise<RunResult> {
   const transpiled = transpile(code);
   if ("error" in transpiled) return { logs: [], error: transpiled.error, tests: [] };

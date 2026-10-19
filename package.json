@@ -19,6 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.0",
     "drizzle-orm": "^0.45.4",
+    "fflate": "^0.8.2",
     "gray-matter": "^4.0.3",
     "lucide-react": "^1.59.0",
     "next": "16.4.2",
@@ -42,6 +43,8 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@ruby/3.4-wasm-wasi": "2.10.1",
+    "@ruby/wasm-wasi": "2.10.1",
     "@tailwindcss/turbopack": "^4",
     "@tailwindcss/typography": "^0.5.20",
     "@types/node": "^24.19.2",

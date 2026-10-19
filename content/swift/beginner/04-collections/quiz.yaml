@@ -1,0 +1,25 @@
+questions:
+  - question: "`let names = [\"りんご\", \"食パン\"]` のとき、`names[2]` を実行するとどうなりますか？"
+    choices:
+      - "`nil` が返る"
+      - "空の文字列 `\"\"` が返る"
+      - "`Index out of range` でクラッシュする"
+      - "`\"食パン\"` が返る"
+    answer: 2
+    explanation: 配列の番号は0から数えるので、要素が2つなら使える番号は 0 と 1 だけです。存在しない番号を指定すると、Swift ではアプリがクラッシュします。
+  - question: "`var counts: [String: Int] = [:]` のあと、販売数を足していく書き方として正しいものはどれですか？"
+    choices:
+      - "`counts[name] += quantity`"
+      - "`counts[name, default: 0] += quantity`"
+      - "`counts.append(quantity)`"
+      - "`counts[0] += quantity`"
+    answer: 1
+    explanation: "辞書から取り出した値はオプショナル（ないかもしれない値）なので、そのままでは足せません。`default: 0` を付けると、まだないキーを 0 として扱えます。"
+  - question: 辞書（Dictionary）についての説明で、正しいものはどれですか？
+    choices:
+      - 追加した順番が必ず保たれる
+      - 順番がないので、表示される順番は変わることがある
+      - キーは数値しか使えない
+      - 同じキーを2つ持てる
+    answer: 1
+    explanation: 辞書には順番がありません。ランキングのように順番が必要なときは、配列に変換して並べ替えます。

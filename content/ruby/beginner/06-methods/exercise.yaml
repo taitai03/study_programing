@@ -1,0 +1,107 @@
+ticket: |
+  ## 背景
+  さくらマートでクーポンを配ることになりました。販売チームから、クーポンの割引ルールの仕様書が届いています。
+  このルールを、注文の計算で使えるメソッドとして作ってください。今回はメソッドの形も用意していません。白紙から書きます。
+
+  ## 仕様書
+  ### メソッド1: `coupon_discount(amount, type:, value:, min_purchase: 0)`
+  クーポンの割引額を返す。`type`、`value` は必須のキーワード引数、`min_purchase` は省略できるキーワード引数（省略時は 0）。
+
+  - `amount`（金額）が `min_purchase`（最低購入金額）より小さい場合は、割引しない（0を返す）
+  - `type` が `:amount`（定額）の場合: `value` 円を割り引く。ただし、割引額は `amount` を超えない
+  - `type` が `:percent`（定率）の場合: `amount` の `value` %を割り引く（端数は切り捨て）
+  - それ以外の `type` の場合は、割引しない
+
+  ### メソッド2: `discounted_amount(subtotal, rank:, coupon: nil)`
+  割引後の金額（税抜）を返す。`rank` は会員ランク（`:general` `:silver` `:gold`）。
+  `coupon` はクーポンのハッシュ（例: `{ type: :amount, value: 500, min_purchase: 2000 }`。`min_purchase` はないこともある）で、クーポンを使わないときは `nil`。
+
+  1. まず、会員ランクの割引をする（ゴールド 10%、シルバー 5%、それ以外 0%、端数は切り捨て）
+  2. 次に、ランク割引のあとの金額に対してクーポンを使う（最低購入金額も、ランク割引のあとの金額で判定する）
+
+  ## 受け入れ条件
+  - [ ] 3,000円に「500円引き・2,000円以上」のクーポンを使うと、割引額は500円
+  - [ ] 1,500円には「500円引き・2,000円以上」のクーポンは使えない（割引額0円）。ちょうど2,000円なら使える
+  - [ ] 300円に「500円引き」のクーポンを使うと、割引額は300円（金額を超えない）
+  - [ ] 3,333円に「10%引き」のクーポンを使うと、割引額は333円
+  - [ ] 知らない種類のクーポンでは割引しない
+  - [ ] `type` や `value` を渡さずに呼ぶと `ArgumentError` になる
+  - [ ] ゴールド会員が10,000円の注文で「10%引き」を使うと、割引後は8,100円
+  - [ ] シルバー会員が2,100円の注文で「500円引き・2,000円以上」を使おうとすると、ランク割引後が1,995円になるのでクーポンは使えず、1,995円
+  - [ ] クーポンを使わない一般会員の5,000円の注文は、5,000円のまま
+starter: |
+  # 仕様書（左のチケット）を読んで、
+  # coupon_discount と discounted_amount の2つのメソッドを作ってください。
+  # 必要なら、ほかのメソッドを作って使ってもかまいません。
+
+solution: |
+  RANK_DISCOUNT_RATES = { gold: 10, silver: 5 }
+
+  def coupon_discount(amount, type:, value:, min_purchase: 0)
+    return 0 if amount < min_purchase
+
+    case type
+    when :amount
+      [value, amount].min
+    when :percent
+      amount * value / 100
+    else
+      0
+    end
+  end
+
+  def discounted_amount(subtotal, rank:, coupon: nil)
+    rate = RANK_DISCOUNT_RATES.fetch(rank, 0)
+    after_rank = subtotal - subtotal * rate / 100
+    return after_rank if coupon.nil?
+
+    after_rank - coupon_discount(
+      after_rank,
+      type: coupon[:type],
+      value: coupon[:value],
+      min_purchase: coupon.fetch(:min_purchase, 0),
+    )
+  end
+tests:
+  - name: 3,000円に「500円引き・2,000円以上」のクーポンを使うと、割引額は500円
+    code: |
+      expect(coupon_discount(3000, type: :amount, value: 500, min_purchase: 2000)).to eq(500)
+  - name: 最低購入金額に届かないと使えず、ちょうどなら使える
+    code: |
+      expect(coupon_discount(1500, type: :amount, value: 500, min_purchase: 2000)).to eq(0)
+      expect(coupon_discount(2000, type: :amount, value: 500, min_purchase: 2000)).to eq(500)
+  - name: 300円に「500円引き」のクーポンを使うと、割引額は300円
+    code: |
+      expect(coupon_discount(300, type: :amount, value: 500)).to eq(300)
+  - name: 3,333円に「10%引き」のクーポンを使うと、割引額は333円
+    code: |
+      expect(coupon_discount(3333, type: :percent, value: 10)).to eq(333)
+  - name: 知らない種類のクーポンでは割引しない
+    code: |
+      expect(coupon_discount(3000, type: :free_shipping, value: 10)).to eq(0)
+  - name: type や value を渡さずに呼ぶと ArgumentError になる
+    code: |
+      expect { coupon_discount(3000, value: 500) }.to raise_error(ArgumentError)
+      expect { coupon_discount(3000, type: :amount) }.to raise_error(ArgumentError)
+  - name: ゴールド会員が10,000円の注文で「10%引き」を使うと、割引後は8,100円
+    code: |
+      expect(discounted_amount(10000, rank: :gold, coupon: { type: :percent, value: 10 })).to eq(8100)
+  - name: シルバー会員の2,100円の注文では、ランク割引後が2,000円未満なのでクーポンを使えない
+    code: |
+      expect(discounted_amount(2100, rank: :silver, coupon: { type: :amount, value: 500, min_purchase: 2000 })).to eq(1995)
+  - name: クーポンを使わない一般会員の5,000円の注文は、5,000円のまま
+    code: |
+      expect(discounted_amount(5000, rank: :general)).to eq(5000)
+      expect(discounted_amount(5000, rank: :general, coupon: nil)).to eq(5000)
+hints:
+  - |
+    まずはメソッドの「形」だけ書きましょう。次のように書いて、エラーが出ないことを確かめてから中身を書きます。
+
+    ```ruby
+    def coupon_discount(amount, type:, value:, min_purchase: 0)
+      0
+    end
+    ```
+  - "「割引額は amount を超えない」は、2つのうち小さいほうを返す `[value, amount].min` で書けます。"
+  - "`discounted_amount` の中で `coupon_discount` を呼び出しましょう。クーポンのハッシュから `coupon[:type]` のように値を取り出して、キーワード引数に渡します。"
+  - "`min_purchase` がないクーポンもあるので、`coupon.fetch(:min_purchase, 0)` のように代わりの値を決めておきます。"

@@ -30,6 +30,10 @@ export type Lesson = LessonMeta & {
   body: string;
   exercise: Exercise | null;
   quiz: Quiz | null;
+  /** Playground で解く演習の課題文（ticket.md）。判定はクイズで行う */
+  ticket: string | null;
+  /** playground/ があれば、ダウンロードできる Playground を用意する */
+  hasPlayground: boolean;
 };
 
 export type CourseWithLessons = Course & {
@@ -38,7 +42,24 @@ export type CourseWithLessons = Course & {
   lessons: LessonMeta[];
 };
 
-async function readIfExists(file: string) {
+export function lessonDir(lessonId: string) {
+  return path.join(CONTENT_DIR, lessonId);
+}
+
+export function courseDir(courseId: string) {
+  return path.join(CONTENT_DIR, courseId);
+}
+
+async function exists(file: string) {
+  try {
+    await fs.access(file);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function readIfExists(file: string) {
   try {
     return await fs.readFile(file, "utf8");
   } catch (e) {
@@ -94,15 +115,18 @@ export const getLesson = cache(async (lessonId: string): Promise<Lesson | null> 
   const meta = course?.lessons.find((l) => l.id === lessonId);
   if (!meta) return null;
 
-  const dir = path.join(CONTENT_DIR, lessonId);
+  const dir = lessonDir(lessonId);
   const { content } = matter(await fs.readFile(path.join(dir, "lesson.md"), "utf8"));
   const exerciseRaw = await readIfExists(path.join(dir, "exercise.yaml"));
   const quizRaw = await readIfExists(path.join(dir, "quiz.yaml"));
+  const ticket = await readIfExists(path.join(dir, "ticket.md"));
 
   return {
     ...meta,
     body: content,
     exercise: exerciseRaw ? exerciseSchema.parse(parseYaml(exerciseRaw)) : null,
     quiz: quizRaw ? quizSchema.parse(parseYaml(quizRaw)) : null,
+    ticket,
+    hasPlayground: await exists(path.join(dir, "playground", "Contents.swift")),
   };
 });

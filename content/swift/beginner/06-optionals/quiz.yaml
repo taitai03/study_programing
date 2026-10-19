@@ -1,0 +1,25 @@
+questions:
+  - question: "`let points: Int? = nil` のとき、`print(\"\\(points ?? 0) pt\")` の出力はどれですか？"
+    choices:
+      - "`nil pt`"
+      - "`0 pt`"
+      - "`Optional(0) pt`"
+      - アプリがクラッシュする
+    answer: 1
+    explanation: "`??` は、左の値が nil のときに右の値を使います。points は nil なので 0 になります。"
+  - question: "`Int(\"abc\")!` を実行するとどうなりますか？"
+    choices:
+      - "`0` になる"
+      - "`nil` になる"
+      - アプリがクラッシュする
+      - コンパイルエラーになる
+    answer: 2
+    explanation: "`Int(\"abc\")` は数値にできないので nil です。`!` で強制的に取り出そうとすると、nil のためアプリがクラッシュします。`if let` や `guard let`、`??` を使いましょう。"
+  - question: "`guard let quantity = Int(text) else { return nil }` の下の行で、`quantity` はどう扱えますか？"
+    choices:
+      - "`Int?` のまま、毎回取り出す必要がある"
+      - "`Int` として、そのまま使える"
+      - "`String` として使える"
+      - "`guard` の下では `quantity` は使えない"
+    answer: 1
+    explanation: "`guard let` は、nil のときに else の中で関数を抜けます。そのため、下の行に来たときには必ず値があり、`Int` としてそのまま使えます。"

@@ -1,0 +1,25 @@
+questions:
+  - question: "`names = [\"りんご\", \"食パン\", \"まな板\"]` のとき、`names[1]` の値はどれですか？"
+    choices:
+      - "`\"りんご\"`"
+      - "`\"食パン\"`"
+      - "`\"まな板\"`"
+      - "`nil`"
+    answer: 1
+    explanation: 配列の番号は0から数えます。`[0]` が1番目、`[1]` が2番目です。
+  - question: "`product = { name: \"りんご\", price: 398 }` から価格を取り出す書き方はどれですか？"
+    choices:
+      - "`product[\"price\"]`"
+      - "`product[:price]`"
+      - "`product.price`"
+      - "`product[1]`"
+    answer: 1
+    explanation: "`price:` と書いたキーはシンボル `:price` です。文字列の `\"price\"` は別の値なので、`product[\"price\"]` は `nil` になります。"
+  - question: "`order[:items][0][:product_name]` が `NoMethodError: undefined method '[]' for nil` になりました。考えられる原因はどれですか？"
+    choices:
+      - "`order` が大きすぎる"
+      - "`items` が空の配列で、`order[:items][0]` が `nil` になっている"
+      - "`product_name` のつづりが間違っている"
+      - Rubyでは `[ ]` を3回つなげられない
+    answer: 1
+    explanation: "存在しない番号を指定すると `nil` が返り、`nil` に `[:product_name]` を付けたところでエラーになります。データが空のときもあるなら `dig` を使います。なお、キーのつづりの間違いはエラーではなく `nil` になります。"

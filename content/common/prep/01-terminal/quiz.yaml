@@ -1,0 +1,25 @@
+questions:
+  - question: "今いるフォルダが `/Users/taro/projects/sakura-mart` のとき、`cd ..` を実行すると、どこに移動しますか？"
+    choices:
+      - "`/Users/taro`"
+      - "`/Users/taro/projects`"
+      - "`/Users/taro/projects/sakura-mart/..`"
+      - ホームフォルダ
+    answer: 1
+    explanation: "`..` は1つ上のフォルダを表します。`sakura-mart` の1つ上の `projects` に移動します。"
+  - question: "`cd projcts` を実行したら `no such file or directory: projcts` と表示されました。最初にすることとして適切なものはどれですか？"
+    choices:
+      - "`sudo` を付けてもう一度実行する"
+      - "`pwd` と `ls` で今いる場所とフォルダ名を確認する"
+      - ターミナルを再起動する
+      - "`rm -rf` でフォルダを作り直す"
+    answer: 1
+    explanation: "「そのファイルやフォルダはない」というエラーです。今いる場所とつづり（projects）を確認しましょう。`Tab` キーで補うと、タイプミスを防げます。"
+  - question: "`rm` コマンドについての説明で、正しいものはどれですか？"
+    choices:
+      - 消したファイルはゴミ箱に入るので、あとから戻せる
+      - 消したファイルはすぐに消え、元に戻せない。実行前に場所と対象を確認する
+      - フォルダは消せない
+      - 確認のメッセージが必ず表示される
+    answer: 1
+    explanation: "`rm` はゴミ箱を使わずにすぐ削除します。特に `rm -rf` はフォルダごと確認なしで消すので、`pwd` と `ls` で確認してから実行しましょう。"

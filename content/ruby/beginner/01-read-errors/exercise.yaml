@@ -1,0 +1,59 @@
+ticket: |
+  ## 背景
+  送料を計算するプログラムが、昨日の修正のあとから動かなくなったと報告がありました。
+  送料のルールは「550円。税込5,000円以上なら無料」です。
+
+  ## やること
+  - エラーメッセージを手がかりに、プログラムが動くように直してください
+  - ルールそのもの（金額や条件）は変えないでください
+
+  ## 受け入れ条件
+  - [ ] 実行すると、出力に `550` と `0` が順に表示される
+  - [ ] 3,000円の注文の送料が550円になる
+  - [ ] 5,000円の注文の送料が0円になる
+  - [ ] 4,999円の注文の送料が550円になる
+starter: |
+  # 送料を計算するプログラム（どこかが壊れています）
+  SHIPPING_FEE = 550
+  FREE_SHIPPING_THRESHOLD = 5000
+
+  def calc_shipping_fee(total)
+    if total >= FREE_SHIPPING_THRESHOLD
+      return 0
+    end
+    SHIPING_FEE
+  end
+
+  puts calc_shipping_fee(3000)
+  puts calc_shiping_fee(5000)
+solution: |
+  # 送料を計算するプログラム
+  SHIPPING_FEE = 550
+  FREE_SHIPPING_THRESHOLD = 5000
+
+  def calc_shipping_fee(total)
+    if total >= FREE_SHIPPING_THRESHOLD
+      return 0
+    end
+    SHIPPING_FEE
+  end
+
+  puts calc_shipping_fee(3000)
+  puts calc_shipping_fee(5000)
+tests:
+  - name: 実行すると、出力に 550 と 0 が順に表示される
+    code: |
+      expect(logs.first(2)).to eq(["550", "0"])
+  - name: 3,000円の注文の送料が550円になる
+    code: |
+      expect(calc_shipping_fee(3000)).to eq(550)
+  - name: 5,000円の注文の送料が0円になる
+    code: |
+      expect(calc_shipping_fee(5000)).to eq(0)
+  - name: 4,999円の注文の送料が550円になる
+    code: |
+      expect(calc_shipping_fee(4999)).to eq(550)
+hints:
+  - まず「実行」を押して、エラーメッセージの行番号を確認しましょう。
+  - 1つ直すと、次のエラーが出ることがあります。エラーが出なくなるまで繰り返します。
+  - 名前のつづりを、定義している場所（`SHIPPING_FEE = ...` や `def` のあと）と見比べてみましょう。

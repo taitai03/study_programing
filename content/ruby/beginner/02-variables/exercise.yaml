@@ -1,0 +1,68 @@
+ticket: |
+  ## 背景
+  商品ページに「まとめ買いしたときの税込金額と付与ポイント」を表示したいと、販売チームから依頼がありました。
+  まずは1つの商品で計算が合うかを確認します。
+
+  ## やること
+  エディタの `TODO` の部分を埋めて、計算を完成させてください。
+
+  - 小計（税抜）= 価格 × 数量
+  - 税込金額 = 小計に消費税10%を加えた金額（端数は切り捨て）
+  - 付与ポイント = 税込金額の1%（端数は切り捨て）
+  - ゴールド会員の付与ポイント = 税込金額の2%（端数は切り捨て）
+
+  ## 受け入れ条件
+  - [ ] 小計（`subtotal`）が 1,194 になる
+  - [ ] 税込金額（`total_with_tax`）が 1,313 になる
+  - [ ] 付与ポイント（`points`）が 13 になる
+  - [ ] ゴールド会員の付与ポイント（`gold_points`）が 26 になる
+  - [ ] 出力に `国産りんごジュース 1L を 3 個: 税込 1313 円（13 ポイント付与）` と表示される
+starter: |
+  product_name = "国産りんごジュース 1L"
+  price = 398 # 税抜価格
+  quantity = 3
+
+  # TODO: 小計（税抜）= 価格 × 数量
+  subtotal = 0
+
+  # TODO: 税込金額 = 小計に消費税10%を加えた金額（端数は切り捨て）
+  total_with_tax = 0
+
+  # TODO: 付与ポイント = 税込金額の1%（端数は切り捨て）
+  points = 0
+
+  # TODO: ゴールド会員の付与ポイント = 税込金額の2%（端数は切り捨て）
+  gold_points = 0
+
+  puts "#{product_name} を #{quantity} 個: 税込 #{total_with_tax} 円（#{points} ポイント付与）"
+solution: |
+  product_name = "国産りんごジュース 1L"
+  price = 398 # 税抜価格
+  quantity = 3
+
+  subtotal = price * quantity
+  total_with_tax = subtotal * 110 / 100
+  points = total_with_tax / 100
+  gold_points = total_with_tax * 2 / 100
+
+  puts "#{product_name} を #{quantity} 個: 税込 #{total_with_tax} 円（#{points} ポイント付与）"
+tests:
+  - name: 小計（subtotal）が 1,194 になる
+    code: |
+      expect(subtotal).to eq(1194)
+  - name: 税込金額（total_with_tax）が 1,313 になる
+    code: |
+      expect(total_with_tax).to eq(1313)
+  - name: 付与ポイント（points）が 13 になる
+    code: |
+      expect(points).to eq(13)
+  - name: ゴールド会員の付与ポイント（gold_points）が 26 になる
+    code: |
+      expect(gold_points).to eq(26)
+  - name: 出力に計算結果の文章が表示される
+    code: |
+      expect(logs.first).to eq("国産りんごジュース 1L を 3 個: 税込 1313 円（13 ポイント付与）")
+hints:
+  - 小計は、すでにある変数 `price` と `quantity` を使って計算します。
+  - 税込金額は解説の「お金の計算は整数で行う」と同じ書き方で求められます。
+  - 1%は「100で割る」と同じです。2%は「2を掛けてから100で割る」です。整数どうしの割り算は自動で切り捨てられます。

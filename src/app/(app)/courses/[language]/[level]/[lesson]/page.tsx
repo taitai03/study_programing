@@ -1,4 +1,4 @@
-import { CheckCircle2Icon, ClockIcon, LightbulbIcon } from "lucide-react";
+import { CheckCircle2Icon, ClockIcon, DownloadIcon, LightbulbIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -45,9 +45,14 @@ export default async function LessonPage({ params }: Props) {
   const prev = course.lessons[index - 1];
   const next = course.lessons[index + 1];
 
-  const [bodyHtml, ticketHtml, hintHtmls] = await Promise.all([
+  const browserLanguage =
+    course.language === "typescript" || course.language === "ruby" ? course.language : null;
+  const workspace = lesson.exercise && browserLanguage ? lesson.exercise : null;
+
+  const [bodyHtml, ticketHtml, playgroundTicketHtml, hintHtmls] = await Promise.all([
     renderMarkdown(lesson.body),
     lesson.exercise ? renderMarkdown(lesson.exercise.ticket) : "",
+    lesson.ticket ? renderMarkdown(lesson.ticket) : "",
     Promise.all((lesson.exercise?.hints ?? []).map(renderMarkdown)),
   ]);
 
@@ -56,8 +61,10 @@ export default async function LessonPage({ params }: Props) {
   };
 
   return (
-    <div className="grid lg:grid-cols-2">
-      <article className="space-y-10 px-6 py-8 lg:px-10">
+    <div className={workspace ? "grid lg:grid-cols-2" : ""}>
+      <article
+        className={`space-y-10 px-6 py-8 lg:px-10 ${workspace ? "" : "mx-auto max-w-3xl"}`}
+      >
         <header className="space-y-3">
           <Link
             href={courseHref(course.id)}
@@ -113,6 +120,29 @@ export default async function LessonPage({ params }: Props) {
           </section>
         )}
 
+        {lesson.hasPlayground && (
+          <section className="space-y-3">
+            <h2 className="border-b pb-2 text-lg font-semibold">演習（Playground）</h2>
+            <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
+              <li>Playground をダウンロードして展開し、Xcode で開きます</li>
+              <li>チケットを読んで、<code>TODO</code> の部分を書きます</li>
+              <li>
+                実行すると、下のほうにあるセルフチェックの結果が表示されます。すべて ✅ になったら完成です
+              </li>
+              <li>このページの確認クイズに答えると、レッスン完了です</li>
+            </ol>
+            {playgroundTicketHtml && (
+              <Markdown html={playgroundTicketHtml} className="rounded-lg border p-5" />
+            )}
+            <Button asChild>
+              <a href={`${lessonHref(lesson.id)}/playground`} download>
+                <DownloadIcon />
+                Playground をダウンロード（zip）
+              </a>
+            </Button>
+          </section>
+        )}
+
         {publicQuiz && (
           <section className="space-y-3">
             <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold">
@@ -143,14 +173,15 @@ export default async function LessonPage({ params }: Props) {
         </nav>
       </article>
 
-      {lesson.exercise && (
+      {workspace && browserLanguage && (
         <aside className="border-l bg-muted/20 lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)]">
           <CodeWorkspace
             key={lesson.id}
             lessonId={lesson.id}
-            starter={lesson.exercise.starter}
-            tests={lesson.exercise.tests}
-            typecheck={lesson.exercise.typecheck}
+            language={browserLanguage}
+            starter={workspace.starter}
+            tests={workspace.tests}
+            typecheck={workspace.typecheck}
           />
         </aside>
       )}

@@ -1,0 +1,25 @@
+questions:
+  - question: "`func stockCount(for product: String) -> Int` と定義した関数の呼び出し方はどれですか？"
+    choices:
+      - "`stockCount(product: \"天然水 2L\")`"
+      - "`stockCount(for: \"天然水 2L\")`"
+      - "`stockCount(\"天然水 2L\")`"
+      - "`stockCount(for product: \"天然水 2L\")`"
+    answer: 1
+    explanation: "`for` が呼び出すときのラベル、`product` が関数の中で使う名前です。呼び出す側は `for:` を書きます。"
+  - question: "`[398, 248, 1980].filter { $0 >= 300 }` の結果はどれですか？"
+    choices:
+      - "`[398, 1980]`"
+      - "`[248]`"
+      - "`[true, false, true]`"
+      - "`2378`"
+    answer: 0
+    explanation: "`filter` は、クロージャの結果が true になった要素だけを残した新しい配列を返します。`$0` はクロージャが受け取った1つめの値（ここでは各価格）です。"
+  - question: "`func lineTotal(unitPrice: Int, quantity: Int = 1) -> Int` の呼び出しで、エラーになるものはどれですか？"
+    choices:
+      - "`lineTotal(unitPrice: 398)`"
+      - "`lineTotal(unitPrice: 398, quantity: 3)`"
+      - "`lineTotal(398, 3)`"
+      - いずれもエラーにならない
+    answer: 2
+    explanation: "ラベルが付いた引数は、呼び出すときもラベルを書く必要があります。`quantity` はデフォルト値があるので省略できます。"

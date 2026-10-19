@@ -1,0 +1,161 @@
+ticket: |
+  ## 背景
+  店長から「毎日の閉店後に、その日の売上の要点を1画面で見たい」と依頼がありました。
+  画面は別の担当者が作るので、あなたは注文データからレポートの数字を作るメソッドを担当します。
+
+  ## 仕様書
+  メソッド `create_daily_report(orders)` を作る。`orders` は注文のハッシュの配列（形はエディタの `today_orders` を参照）。
+  戻り値は、次のキーを持つハッシュ。
+
+  | キー | 内容 |
+  | --- | --- |
+  | `:order_count` | 注文の件数 |
+  | `:sales` | 売上。各注文の小計（単価 × 数量の合計、税抜）の合計 |
+  | `:average_order_value` | 1注文あたりの平均金額。`sales ÷ order_count`（端数は切り捨て）。注文が0件なら 0 |
+  | `:top_products` | 商品別の販売数ランキング。`{ product_name: 商品名, quantity: 販売数 }` のハッシュを、販売数の多い順に最大3つ並べた配列 |
+
+  - キャンセル（`status` が `:cancelled`）の注文は、**すべての項目で** 集計に含めない
+  - ランキングで販売数が同じ商品は、注文データに先に出てきた商品を上にする
+  - 注文が0件のときは、件数・売上・平均は 0、ランキングは空の配列
+
+  ## 受け入れ条件
+  - [ ] 今日の注文（`today_orders`）の件数が 4 件になる（キャンセルを除く）
+  - [ ] 今日の売上が 6,652 円になる
+  - [ ] 今日の1注文あたりの平均金額が 1,663 円になる
+  - [ ] 今日のランキングが「天然水 2L（10個）」「国産りんごジュース 1L（4個）」「ふっくら食パン（3個）」になる
+  - [ ] 販売数が同じ商品は、先に出てきた商品が上になる
+  - [ ] 注文が0件のときは、0 と空のランキングになる
+starter: |
+  today_orders = [
+    { id: 1, status: :paid, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 3 },
+      { product_name: "ふっくら食パン", unit_price: 248, quantity: 2 },
+    ] },
+    { id: 2, status: :shipped, items: [
+      { product_name: "竹のまな板", unit_price: 1980, quantity: 1 },
+      { product_name: "天然水 2L", unit_price: 128, quantity: 6 },
+    ] },
+    { id: 3, status: :cancelled, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 10 },
+    ] },
+    { id: 4, status: :delivered, items: [
+      { product_name: "天然水 2L", unit_price: 128, quantity: 4 },
+      { product_name: "ボールペン 3本セット", unit_price: 330, quantity: 2 },
+    ] },
+    { id: 5, status: :pending, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 1 },
+      { product_name: "ふっくら食パン", unit_price: 248, quantity: 1 },
+      { product_name: "食器用スポンジ", unit_price: 198, quantity: 2 },
+    ] },
+  ]
+
+  # 仕様書（左のチケット）を読んで、create_daily_report を作ってください。
+  # 必要なら、ほかのメソッドを作って使ってもかまいません。
+
+solution: |
+  today_orders = [
+    { id: 1, status: :paid, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 3 },
+      { product_name: "ふっくら食パン", unit_price: 248, quantity: 2 },
+    ] },
+    { id: 2, status: :shipped, items: [
+      { product_name: "竹のまな板", unit_price: 1980, quantity: 1 },
+      { product_name: "天然水 2L", unit_price: 128, quantity: 6 },
+    ] },
+    { id: 3, status: :cancelled, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 10 },
+    ] },
+    { id: 4, status: :delivered, items: [
+      { product_name: "天然水 2L", unit_price: 128, quantity: 4 },
+      { product_name: "ボールペン 3本セット", unit_price: 330, quantity: 2 },
+    ] },
+    { id: 5, status: :pending, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 1 },
+      { product_name: "ふっくら食パン", unit_price: 248, quantity: 1 },
+      { product_name: "食器用スポンジ", unit_price: 198, quantity: 2 },
+    ] },
+  ]
+
+  def valid_orders(orders)
+    orders.reject { |order| order[:status] == :cancelled }
+  end
+
+  def order_subtotal(order)
+    order[:items].sum { |item| item[:unit_price] * item[:quantity] }
+  end
+
+  def rank_products(orders)
+    counts = Hash.new(0)
+    orders.each do |order|
+      order[:items].each do |item|
+        counts[item[:product_name]] += item[:quantity]
+      end
+    end
+    list = counts.map { |name, quantity| { product_name: name, quantity: quantity } }
+    list.sort_by.with_index { |item, index| [-item[:quantity], index] }.first(3)
+  end
+
+  def create_daily_report(orders)
+    valid = valid_orders(orders)
+    sales = valid.sum { |order| order_subtotal(order) }
+    {
+      order_count: valid.size,
+      sales: sales,
+      average_order_value: valid.empty? ? 0 : sales / valid.size,
+      top_products: rank_products(valid),
+    }
+  end
+
+  p create_daily_report(today_orders)
+tests:
+  - name: 今日の注文の件数が 4 件になる（キャンセルを除く）
+    code: |
+      expect(create_daily_report(today_orders)[:order_count]).to eq(4)
+  - name: 今日の売上が 6,652 円になる
+    code: |
+      expect(create_daily_report(today_orders)[:sales]).to eq(6652)
+  - name: 今日の1注文あたりの平均金額が 1,663 円になる
+    code: |
+      expect(create_daily_report(today_orders)[:average_order_value]).to eq(1663)
+  - name: 今日のランキングが「天然水 2L」「国産りんごジュース 1L」「ふっくら食パン」になる
+    code: |
+      expect(create_daily_report(today_orders)[:top_products]).to eq([
+        { product_name: "天然水 2L", quantity: 10 },
+        { product_name: "国産りんごジュース 1L", quantity: 4 },
+        { product_name: "ふっくら食パン", quantity: 3 },
+      ])
+  - name: 販売数が同じ商品は、先に出てきた商品が上になる
+    code: |
+      orders = [
+        { id: 1, status: :paid, items: [
+          { product_name: "A", unit_price: 100, quantity: 2 },
+          { product_name: "B", unit_price: 100, quantity: 3 },
+          { product_name: "C", unit_price: 100, quantity: 2 },
+        ] },
+        { id: 2, status: :paid, items: [
+          { product_name: "D", unit_price: 100, quantity: 2 },
+          { product_name: "E", unit_price: 100, quantity: 2 },
+          { product_name: "F", unit_price: 100, quantity: 2 },
+          { product_name: "G", unit_price: 100, quantity: 2 },
+          { product_name: "H", unit_price: 100, quantity: 2 },
+          { product_name: "I", unit_price: 100, quantity: 2 },
+          { product_name: "J", unit_price: 100, quantity: 2 },
+          { product_name: "K", unit_price: 100, quantity: 2 },
+        ] },
+      ]
+      expect(create_daily_report(orders)[:top_products]).to eq([
+        { product_name: "B", quantity: 3 },
+        { product_name: "A", quantity: 2 },
+        { product_name: "C", quantity: 2 },
+      ])
+  - name: 注文が0件のときは、0 と空のランキングになる
+    code: |
+      expect(create_daily_report([])).to eq({ order_count: 0, sales: 0, average_order_value: 0, top_products: [] })
+      cancelled_only = [{ id: 9, status: :cancelled, items: [{ product_name: "A", unit_price: 100, quantity: 1 }] }]
+      expect(create_daily_report(cancelled_only)[:order_count]).to eq(0)
+hints:
+  - 解説の「仕様書から作るときの手順」に沿って、まずはルールを箇条書きにしてみましょう。
+  - 最初にキャンセル以外の注文だけを集めた配列を作っておくと、そのあとの集計ではキャンセルを気にしなくて済みます。
+  - 1つの注文の小計を求めるメソッドや、商品ごとに数えるメソッドは、レッスン5で作ったものが使えます。
+  - ランキングは「商品ごとに数える → 配列にする → 並べ替える（同じ数なら先に出てきた順）→ 先頭3つ」の順で作れます。
+  - "0件のときに `0 / 0` を計算すると `ZeroDivisionError` になります。0件かどうかを先に確かめましょう。"

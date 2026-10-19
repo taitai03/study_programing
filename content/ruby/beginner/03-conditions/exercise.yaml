@@ -1,0 +1,118 @@
+ticket: |
+  ## 背景
+  カートの画面で、会員ランクの割引・送料・注文できるかどうかを判定する処理を作ります。
+  メソッドの形はすでに用意してあるので、中身（`TODO` の部分）を書いてください。
+
+  ## やること
+  1. `rank_discount_rate(rank)`: 会員ランクから割引率（%）を返す
+     - `"gold"` なら 10、`"silver"` なら 5、それ以外は 0
+  2. `shipping_fee(total_with_tax)`: 税込金額から送料を返す
+     - 税込5,000円以上なら 0、それ以外は 550
+  3. `free_shipping_message(total_with_tax)`: カートに表示する送料の案内を返す
+     - 送料無料なら `"送料無料です"`
+     - そうでなければ、あといくらで無料になるかを `"あと1234円で送料無料です"` の形で返す
+  4. `can_accept_order?(stock, quantity)`: 注文を受け付けられるかを返す
+     - 在庫数が注文数以上 **かつ** 注文数が1〜10個の範囲なら `true`、それ以外は `false`
+
+  ## 受け入れ条件
+  - [ ] ゴールド会員の割引率が 10、シルバー会員が 5、一般会員が 0 になる
+  - [ ] 税込4,999円の送料が550円、5,000円と12,000円の送料が0円になる
+  - [ ] 税込3,766円なら「あと1234円で送料無料です」、5,000円なら「送料無料です」と表示する
+  - [ ] 在庫5個に対して3個の注文は受け付け、6個の注文は受け付けない
+  - [ ] 0個や11個の注文は受け付けない（在庫が十分にあっても）
+  - [ ] ちょうど10個の注文は受け付ける
+starter: |
+  # 会員ランクごとの割引率（%）を返す
+  def rank_discount_rate(rank)
+    # TODO: "gold" なら 10、"silver" なら 5、それ以外は 0 を返す
+    0
+  end
+
+  # 送料を返す（税込5,000円以上なら無料）
+  def shipping_fee(total_with_tax)
+    # TODO
+    550
+  end
+
+  # カートに表示する送料の案内を返す
+  def free_shipping_message(total_with_tax)
+    # TODO: 無料になるまでの金額は 5000 - total_with_tax で求められる
+    ""
+  end
+
+  # 注文を受け付けられるか（在庫が足りていて、注文数が1〜10個）
+  def can_accept_order?(stock, quantity)
+    # TODO: && を使って条件を組み合わせる
+    true
+  end
+
+  # 動作確認用。自由に書き換えて試してください
+  p rank_discount_rate("gold")
+  p shipping_fee(4999)
+  p free_shipping_message(3766)
+  p can_accept_order?(5, 3)
+solution: |
+  # 会員ランクごとの割引率（%）を返す
+  def rank_discount_rate(rank)
+    case rank
+    when "gold"
+      10
+    when "silver"
+      5
+    else
+      0
+    end
+  end
+
+  # 送料を返す（税込5,000円以上なら無料）
+  def shipping_fee(total_with_tax)
+    return 0 if total_with_tax >= 5000
+
+    550
+  end
+
+  # カートに表示する送料の案内を返す
+  def free_shipping_message(total_with_tax)
+    if shipping_fee(total_with_tax) == 0
+      "送料無料です"
+    else
+      "あと#{5000 - total_with_tax}円で送料無料です"
+    end
+  end
+
+  # 注文を受け付けられるか（在庫が足りていて、注文数が1〜10個）
+  def can_accept_order?(stock, quantity)
+    stock >= quantity && (1..10).include?(quantity)
+  end
+tests:
+  - name: ゴールド会員の割引率が 10、シルバー会員が 5、一般会員が 0 になる
+    code: |
+      expect(rank_discount_rate("gold")).to eq(10)
+      expect(rank_discount_rate("silver")).to eq(5)
+      expect(rank_discount_rate("general")).to eq(0)
+  - name: 税込4,999円の送料が550円、5,000円と12,000円の送料が0円になる
+    code: |
+      expect(shipping_fee(4999)).to eq(550)
+      expect(shipping_fee(5000)).to eq(0)
+      expect(shipping_fee(12000)).to eq(0)
+  - name: 送料無料になるまでの金額を案内する
+    code: |
+      expect(free_shipping_message(3766)).to eq("あと1234円で送料無料です")
+      expect(free_shipping_message(4999)).to eq("あと1円で送料無料です")
+      expect(free_shipping_message(5000)).to eq("送料無料です")
+  - name: 在庫5個に対して3個の注文は受け付け、6個の注文は受け付けない
+    code: |
+      expect(can_accept_order?(5, 3)).to eq(true)
+      expect(can_accept_order?(5, 6)).to eq(false)
+  - name: 0個や11個の注文は受け付けない（在庫が十分にあっても）
+    code: |
+      expect(can_accept_order?(100, 0)).to eq(false)
+      expect(can_accept_order?(100, 11)).to eq(false)
+  - name: ちょうど10個の注文は受け付ける
+    code: |
+      expect(can_accept_order?(10, 10)).to eq(true)
+hints:
+  - "`rank_discount_rate` は `case` と `when` で書くと読みやすくなります。`if` と `elsif` でもかまいません。"
+  - "「以上」は `>=`、「以下」は `<=` です。境目の値（4,999円と5,000円、10個と11個）で確かめましょう。"
+  - "`free_shipping_message` の中で、すでに作った `shipping_fee` を使うと、送料無料の条件を2か所に書かずに済みます。"
+  - "`can_accept_order?` は「在庫が足りている」と「1〜10個の範囲」を `&&` でつなぎます。範囲は `(1..10).include?(quantity)` で調べられます。"
