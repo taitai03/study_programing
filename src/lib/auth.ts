@@ -2,7 +2,7 @@ import "server-only";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 
@@ -36,6 +36,33 @@ export async function isAllowed(githubLogin: string | null | undefined) {
   return false;
 }
 
+/**
+ * ユーザーのGitHubユーザー名を返す。まだ保存されていなければ、GitHubから取得して保存する。
+ * （additionalFields の input: false の項目は mapProfileToUser の値も捨てられるため、ここで補う）
+ */
+async function ensureGithubLogin(userId: string) {
+  const [row] = await db
+    .select({ githubLogin: schema.user.githubLogin })
+    .from(schema.user)
+    .where(eq(schema.user.id, userId));
+  if (row?.githubLogin) return row.githubLogin;
+
+  const [account] = await db
+    .select({ accessToken: schema.account.accessToken })
+    .from(schema.account)
+    .where(and(eq(schema.account.userId, userId), eq(schema.account.providerId, "github")));
+  if (!account?.accessToken) return null;
+
+  const res = await fetch("https://api.github.com/user", {
+    headers: { Authorization: `Bearer ${account.accessToken}`, "User-Agent": "study-programing" },
+  });
+  if (!res.ok) return null;
+  const { login } = (await res.json()) as { login: string };
+  const githubLogin = login.toLowerCase();
+  await db.update(schema.user).set({ githubLogin }).where(eq(schema.user.id, userId));
+  return githubLogin;
+}
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -50,9 +77,6 @@ export const auth = betterAuth({
     github: {
       clientId: process.env.GITHUB_CLIENT_ID ?? "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
-      mapProfileToUser: (profile) => ({
-        githubLogin: profile.login.toLowerCase(),
-      }),
     },
   },
   emailAndPassword: { enabled: devLoginEnabled, autoSignIn: false },
@@ -74,11 +98,7 @@ export const auth = betterAuth({
       create: {
         // 許可リストから外された人が、既存のアカウントでログインし直せないようにする
         before: async (session) => {
-          const [row] = await db
-            .select({ githubLogin: schema.user.githubLogin })
-            .from(schema.user)
-            .where(eq(schema.user.id, session.userId));
-          if (!(await isAllowed(row?.githubLogin))) return false;
+          if (!(await isAllowed(await ensureGithubLogin(session.userId)))) return false;
         },
       },
     },
