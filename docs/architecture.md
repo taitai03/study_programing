@@ -180,9 +180,11 @@ content/
 | `course_repos` | id, user_id, course_id, repo_full_name, installation_id, created_at | 受講者のコースとGitHubリポジトリの紐付け |
 | `progress` | user_id, lesson_id, status（not_started / in_progress / completed）, completed_at | レッスンごとの進捗 |
 | `submissions` | id, user_id, lesson_id, kind（browser / quiz / pull_request）, pr_number, head_sha, status（pending / passed / failed / invalid）, test_summary（jsonb）, created_at | 提出と判定結果の履歴 |
+| `badges` | id, user_id, course_id, awarded_at | コース修了バッジ |
 | `ai_reviews` | id, submission_id, model, body, input_tokens, output_tokens, created_at | AIレビュー結果と使用量（費用管理用） |
 
 - `course_id` と `lesson_id` は `content/` のパスから作る文字列ID（例: `typescript/intermediate/01-array-methods`）。教材はDBに入れない
+- 学習の足あとやランキングは `progress` と `submissions` から集計する。専用のテーブルは作らない
 - 初級で提出したコードの全文は保存しない。中級以上のコードはGitHub上に残るため、DBにはPR番号とコミットだけを持つ
 
 ## 7. 実装上の注意
@@ -233,6 +235,7 @@ content/
   - Anthropic Consoleの利用上限も設定しておく
 - `ai_reviews` に使用トークン数を記録し、管理画面で月ごとの合計を確認できるようにする
 - 使うモデルは実装時に決める
+- 上級の演習の種類ごとに、レビューの観点（設計、セキュリティ、レビュー指摘の質など）をプロンプトとして `task.yaml` に持たせる
 
 ### 8.6 教材とカリキュラム
 
@@ -248,3 +251,4 @@ content/
 - [ ] 各コースのカリキュラムの中身（`docs/curriculum.md` で合意する）
 - [ ] AIレビューに使うモデルと、回数上限の具体的な値
 - [ ] 会社のAPIキーに切り替える時期と、その費用負担の承認
+- [ ] Vercelの無料プラン（Hobby、個人・非商用のみ）で社内研修に使ってよいか。だめな場合はProプランか別のデプロイ先
