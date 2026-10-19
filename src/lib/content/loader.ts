@@ -11,6 +11,8 @@ import {
   lessonFrontmatterSchema,
   type Quiz,
   quizSchema,
+  type Task,
+  taskSchema,
 } from "./schema";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
@@ -29,6 +31,8 @@ export type LessonMeta = {
 export type Lesson = LessonMeta & {
   body: string;
   exercise: Exercise | null;
+  /** ローカルで解いてPRを出す課題 */
+  task: Task | null;
   quiz: Quiz | null;
   /** Playground で解く演習の課題文（ticket.md）。判定はクイズで行う */
   ticket: string | null;
@@ -118,6 +122,7 @@ export const getLesson = cache(async (lessonId: string): Promise<Lesson | null> 
   const dir = lessonDir(lessonId);
   const { content } = matter(await fs.readFile(path.join(dir, "lesson.md"), "utf8"));
   const exerciseRaw = await readIfExists(path.join(dir, "exercise.yaml"));
+  const taskRaw = await readIfExists(path.join(dir, "task.yaml"));
   const quizRaw = await readIfExists(path.join(dir, "quiz.yaml"));
   const ticket = await readIfExists(path.join(dir, "ticket.md"));
 
@@ -125,8 +130,19 @@ export const getLesson = cache(async (lessonId: string): Promise<Lesson | null> 
     ...meta,
     body: content,
     exercise: exerciseRaw ? exerciseSchema.parse(parseYaml(exerciseRaw)) : null,
+    task: taskRaw ? taskSchema.parse(parseYaml(taskRaw)) : null,
     quiz: quizRaw ? quizSchema.parse(parseYaml(quizRaw)) : null,
     ticket,
     hasPlayground: await exists(path.join(dir, "playground", "Contents.swift")),
   };
 });
+
+/** PRで解く課題の開始ブランチ。受講者はここから作業ブランチを切り、ここに向けてPRを出す */
+export function startBranch(lesson: Pick<LessonMeta, "slug">) {
+  return `start/${lesson.slug}`;
+}
+
+/** テンプレートリポジトリの名前（owner を除いた部分）。受講者のリポジトリも同じ名前にする */
+export function templateRepoName(course: Pick<Course, "templateRepo">) {
+  return course.templateRepo?.split("/")[1] ?? null;
+}

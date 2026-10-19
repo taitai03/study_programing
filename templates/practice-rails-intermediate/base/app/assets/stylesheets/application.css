@@ -1,0 +1,66 @@
+/* さくらマート 管理画面のスタイル（シンプルなCSSだけで書いている） */
+:root {
+  --primary: #be185d;
+  --muted: #71717a;
+  --border: #e4e4e7;
+  --bg-muted: #f4f4f5;
+  --danger: #dc2626;
+  --success: #16a34a;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Hiragino Sans", sans-serif; color: #18181b; font-size: 14px; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1 { font-size: 20px; }
+h2 { font-size: 15px; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.header { border-bottom: 1px solid var(--border); }
+.header-inner { display: flex; align-items: center; gap: 24px; height: 56px; }
+.brand { font-weight: bold; }
+.nav { display: flex; gap: 16px; }
+.nav a { color: var(--muted); }
+.header-user { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.main { padding-top: 24px; padding-bottom: 48px; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+
+.table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; }
+.table th, .table td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+.table thead { background: var(--bg-muted); }
+.num { text-align: right !important; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.card { border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.card h2 { margin: 0; color: var(--muted); font-weight: normal; }
+.big { font-size: 24px; font-weight: bold; margin: 8px 0 0; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; background: var(--bg-muted); }
+.badge-pending { background: #f59e0b; color: white; }
+.badge-paid { background: var(--primary); color: white; }
+.badge-completed { background: var(--success); color: white; }
+.badge-cancelled { border: 1px solid var(--border); background: white; }
+
+.dl { display: grid; grid-template-columns: 9rem 1fr; gap: 6px 12px; }
+.dl dt { color: var(--muted); }
+.dl dd { margin: 0; }
+.totals { max-width: 320px; margin-left: auto; }
+.totals dd { text-align: right; }
+
+.flash { padding: 10px 14px; border-radius: 8px; }
+.flash-notice { background: #f0fdf4; color: var(--success); }
+.flash-alert { background: #fef2f2; color: var(--danger); }
+
+.form { display: grid; gap: 16px; max-width: 480px; }
+.field { display: grid; gap: 4px; }
+.field label { font-weight: 600; }
+.field input, .field select, .field textarea { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font: inherit; }
+.field-error { color: var(--danger); font-size: 12px; }
+.errors { border: 1px solid var(--danger); border-radius: 8px; padding: 10px 14px; color: var(--danger); }
+.button { display: inline-block; padding: 8px 16px; border: none; border-radius: 6px; background: var(--primary); color: white; font: inherit; cursor: pointer; }
+.button-ghost { background: transparent; color: inherit; }
+.button-outline { background: white; color: inherit; border: 1px solid var(--border); }
+.button-danger { background: var(--danger); }
+.actions { display: flex; gap: 8px; align-items: center; }
+.login { max-width: 360px; margin: 80px auto; padding: 0 24px; }

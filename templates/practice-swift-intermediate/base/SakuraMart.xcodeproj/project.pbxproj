@@ -1,0 +1,227 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EE0E38F09085DB30A38E752A /* SakuraMartKit in Frameworks */ = {isa = PBXBuildFile; productRef = E3D0B0A78E8F343BC0E42561 /* SakuraMartKit */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E00D8CFFCA98F0014D51CB4C /* SakuraMartKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SakuraMartKit; path = SakuraMartKit; sourceTree = SOURCE_ROOT; };
+		FC60024AD3621058B210E876 /* SakuraMart.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SakuraMart.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		749060A0A39F065FEF9CC7F6 /* SakuraMart */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = SakuraMart;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FBAF2D31AF627CBD1004100F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE0E38F09085DB30A38E752A /* SakuraMartKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA6D231AED1C9ACC790C7675 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				E00D8CFFCA98F0014D51CB4C /* SakuraMartKit */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		B0E1725E7BE953147D7C6548 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FC60024AD3621058B210E876 /* SakuraMart.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F408E78FDC65D12011BD3CE0 = {
+			isa = PBXGroup;
+			children = (
+				749060A0A39F065FEF9CC7F6 /* SakuraMart */,
+				AA6D231AED1C9ACC790C7675 /* Packages */,
+				B0E1725E7BE953147D7C6548 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B0E400FF06469F4B0AE49340 /* SakuraMart */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1805A65FA308C5E600344C65 /* Build configuration list for PBXNativeTarget "SakuraMart" */;
+			buildPhases = (
+				09288E1CA80350AF8CFCAA01 /* Sources */,
+				FBAF2D31AF627CBD1004100F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				749060A0A39F065FEF9CC7F6 /* SakuraMart */,
+			);
+			name = SakuraMart;
+			packageProductDependencies = (
+				E3D0B0A78E8F343BC0E42561 /* SakuraMartKit */,
+			);
+			productName = SakuraMart;
+			productReference = FC60024AD3621058B210E876 /* SakuraMart.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		149976C13CD20583388A3F1B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					B0E400FF06469F4B0AE49340 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = A97111AF99ABDF07136C6EF7 /* Build configuration list for PBXProject "SakuraMart" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F408E78FDC65D12011BD3CE0;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F32A0876DA65DB8A9DF71292 /* XCLocalSwiftPackageReference "SakuraMartKit" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B0E400FF06469F4B0AE49340 /* SakuraMart */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		09288E1CA80350AF8CFCAA01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		461C88ECE1DB25D9C8945783 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+			};
+			name = Release;
+		};
+		8856773FCED1C1097833C291 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "さくらマート";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = example.sakuramart.app;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		9010C478489DF545FCF76AD1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		C325646E434D6555E438A0F7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "さくらマート";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = example.sakuramart.app;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1805A65FA308C5E600344C65 /* Build configuration list for PBXNativeTarget "SakuraMart" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C325646E434D6555E438A0F7 /* Debug */,
+				8856773FCED1C1097833C291 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A97111AF99ABDF07136C6EF7 /* Build configuration list for PBXProject "SakuraMart" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9010C478489DF545FCF76AD1 /* Debug */,
+				461C88ECE1DB25D9C8945783 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		F32A0876DA65DB8A9DF71292 /* XCLocalSwiftPackageReference "SakuraMartKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = SakuraMartKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E3D0B0A78E8F343BC0E42561 /* SakuraMartKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SakuraMartKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 149976C13CD20583388A3F1B /* Project object */;
+}

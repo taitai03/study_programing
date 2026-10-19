@@ -1,0 +1,59 @@
+ticket: |
+  ## 背景
+
+  アプリに「注文履歴」がなく、会員から「前に買った商品をもう一度確かめたい」という声が多く届いています。注文履歴の一覧と詳細の画面を作ります。
+
+  ## 仕様書
+
+  ### データ
+
+  - 注文履歴は `OrderAPI`（`SakuraMartKit/Sources/SakuraMartKit/OrderAPI.swift`）から取得する。開発中はモック（`MockOrderAPI`）を使う
+  - 注文のモデルは `PastOrder`、`PastOrderItem`、`OrderStatus`（`PastOrder.swift`）
+
+  ### 注文履歴の一覧
+
+  - タブに「注文履歴」を追加する
+  - 注文を **新しい順** に、**日本時間の月ごと**（`2026年4月` のような見出し、新しい月が先）に分けて表示する
+  - 各行には、商品名（2点以上なら「ほか○点」）、ステータス、合計金額を表示する
+  - 読み込み中は「読み込み中…」、0件なら「注文はまだありません」、失敗したら理由と「もう一度読み込む」ボタンを表示する
+
+  ### 注文の詳細
+
+  - 一覧の行を選ぶと、詳細を表示する（`OrderAPI.fetchOrder(id:)` で取得する）
+  - 注文日時（`2026/04/15 12:00` の形、日本時間）、ステータス、明細（商品名、数量、単価）、明細の小計（単価 × 数量 の合計）、お支払い金額
+  - 読み込み中とエラーの表示は一覧と同じ
+
+  ### テストが使うインターフェース（`SakuraMartKit`）
+
+  | 名前 | 内容 |
+  | --- | --- |
+  | `OrderHistoryViewModel(api: OrderAPI)` | `@MainActor`、`@Observable` |
+  | 〃 `state: LoadState<[PastOrder]>` | 読み込んだ注文は新しい順 |
+  | 〃 `sections: [OrderMonthSection]` | 月ごとのまとまり。読み込む前と失敗したときは空 |
+  | 〃 `isEmpty: Bool` | 読み込みが終わって0件のときだけ `true` |
+  | 〃 `load() async` | 読み込む（失敗したあとの再読み込みも同じ） |
+  | `OrderMonthSection` | `title: String`（例: `2026年4月`）、`orders: [PastOrder]`（新しい順）、`id`（`title` と同じ） |
+  | `OrderDetailViewModel(orderID: Int, api: OrderAPI)` | `@MainActor`、`@Observable` |
+  | 〃 `state: LoadState<PastOrder>`、`load() async` | |
+  | 〃 `itemsSubtotal: Int?`、`orderedAtText: String?`、`statusLabel: String?` | 読み込む前は `nil` |
+
+  失敗したときの `state` は `.failed(message:)` で、メッセージは `APIError` の `errorDescription`。
+
+  ## 受け入れ条件
+
+  - [ ] 仕様書のとおりに動く（シミュレーターで、一覧・詳細・読み込み中を確認する）
+  - [ ] ViewModel のテストを書いている（成功、0件、失敗）
+  - [ ] PRの説明に、設計で判断したことと、確かめたことを書いている
+  - [ ] 既存のテストがすべて通る
+
+  ## 参考
+
+  - テスト: `SakuraMartKit/Tests/SakuraMartKitTests/Tasks/OrderHistoryTaskTests.swift`
+  - 商品一覧（`ProductListViewModel`、`ProductListView`）が参考になります
+hints:
+  - |
+    まず `OrderHistoryViewModel` を `ProductListViewModel` と同じ形で作り、`load()` で取得した注文を `sorted { $0.orderedAt > $1.orderedAt }` で並べてから `state` に入れましょう。
+  - |
+    `sections` は、新しい順の注文を先頭から見ていき、月の見出しが前の注文と同じなら同じセクションに、違えば新しいセクションにします。見出しは `Calendar.japan.dateComponents([.year, .month], from:)` から作ります。
+  - |
+    画面は `switch viewModel.state` で状態ごとに表示を分けます。`ContentUnavailableView` を使うと、0件やエラーの表示を簡単に作れます。

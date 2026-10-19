@@ -1,0 +1,25 @@
+questions:
+  - question: 「今日の売上は合っているが、今月の売上が合わない」という報告を受けました。原因を探す方法として最も効率がよいものはどれですか？
+    choices:
+      - アプリのすべてのファイルを頭から読む
+      - 今日の売上と今月の売上を計算しているコードを見比べ、違いを探す
+      - DBを作り直す
+      - 今月の売上から差額を引くコードを足す
+    answer: 1
+    explanation: 正しく動く処理と、間違っている処理の違いに原因があることが多いです。2つを並べて見比べると、範囲を一気に絞り込めます。
+  - question: ActiveRecord のスコープが、どんな SQL になるかを確かめる方法はどれですか？
+    choices:
+      - "`Order.for_sales.to_sql` を console で実行する、またはログの SQL を見る"
+      - schema.rb を読む
+      - Gemfile.lock を見る
+      - ブラウザの開発者ツールを見る
+    answer: 0
+    explanation: "`to_sql` で、実行される SQL を文字列として確かめられます。開発用サーバーのログにも、実行された SQL が出ます。"
+  - question: debug gem で、コードの途中で止めて変数の中身を見るには、どうしますか？
+    choices:
+      - 止めたい行に `debugger` と書いて実行する
+      - "`puts` を書く"
+      - "`bin/rails routes` を実行する"
+      - "`binding.pry` を Gemfile に書く"
+    answer: 0
+    explanation: "`debugger` の行で止まり、`p` で値を見たり、`next` で1行ずつ進めたりできます。調べ終わったら必ず消します。"

@@ -9,9 +9,11 @@ import { renderMarkdown } from "@/lib/content/markdown";
 import type { PublicQuiz } from "@/lib/content/schema";
 import { courseHref, lessonHref } from "@/lib/course-progress";
 import { getLessonProgress } from "@/lib/progress";
+import { getCourseRepo, getLessonPullRequests } from "@/lib/pull-requests";
 import { requireUser } from "@/lib/session";
 import { CodeWorkspace } from "./code-workspace";
 import { QuizForm } from "./quiz-form";
+import { TaskSection } from "./task-section";
 
 type Props = PageProps<"/courses/[language]/[level]/[lesson]">;
 
@@ -40,7 +42,11 @@ export default async function LessonPage({ params }: Props) {
   ]);
   if (!course || !lesson) notFound();
 
-  const progress = await getLessonProgress(user.id, lesson.id);
+  const [progress, repo, pullRequests] = await Promise.all([
+    getLessonProgress(user.id, lesson.id),
+    lesson.task ? getCourseRepo(user.id, course.id) : null,
+    lesson.task ? getLessonPullRequests(user.id, lesson.id) : [],
+  ]);
   const index = course.lessons.findIndex((l) => l.id === lesson.id);
   const prev = course.lessons[index - 1];
   const next = course.lessons[index + 1];
@@ -51,9 +57,9 @@ export default async function LessonPage({ params }: Props) {
 
   const [bodyHtml, ticketHtml, playgroundTicketHtml, hintHtmls] = await Promise.all([
     renderMarkdown(lesson.body),
-    lesson.exercise ? renderMarkdown(lesson.exercise.ticket) : "",
+    renderMarkdown(lesson.exercise?.ticket ?? lesson.task?.ticket ?? ""),
     lesson.ticket ? renderMarkdown(lesson.ticket) : "",
-    Promise.all((lesson.exercise?.hints ?? []).map(renderMarkdown)),
+    Promise.all((lesson.exercise?.hints ?? lesson.task?.hints ?? []).map(renderMarkdown)),
   ]);
 
   const publicQuiz: PublicQuiz | null = lesson.quiz && {
@@ -118,6 +124,17 @@ export default async function LessonPage({ params }: Props) {
               </div>
             )}
           </section>
+        )}
+
+        {lesson.task && (
+          <TaskSection
+            lesson={lesson}
+            repo={repo}
+            pullRequests={pullRequests}
+            passed={progress.exercisePassed}
+            ticketHtml={ticketHtml}
+            hintHtmls={hintHtmls}
+          />
         )}
 
         {lesson.hasPlayground && (

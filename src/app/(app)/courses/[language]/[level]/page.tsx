@@ -2,12 +2,14 @@ import { CheckCircle2Icon, CircleDashedIcon, CircleIcon, ClockIcon } from "lucid
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { RepoSetup } from "@/components/github/repo-setup";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getCourse } from "@/lib/content/loader";
 import { renderMarkdown } from "@/lib/content/markdown";
 import { lessonHref, summarizeCourse } from "@/lib/course-progress";
 import { getProgressMap } from "@/lib/progress";
+import { getCourseRepo } from "@/lib/pull-requests";
 import { requireUser } from "@/lib/session";
 
 export async function generateMetadata({
@@ -24,7 +26,10 @@ export default async function CoursePage({ params }: PageProps<"/courses/[langua
   const course = await getCourse(`${language}/${level}`);
   if (!course || course.lessons.length === 0) notFound();
 
-  const progressMap = await getProgressMap(user.id);
+  const [progressMap, repo] = await Promise.all([
+    getProgressMap(user.id),
+    course.templateRepo ? getCourseRepo(user.id, course.id) : null,
+  ]);
   const summary = summarizeCourse(course, progressMap);
   const introHtml = await renderMarkdown(course.intro);
 
@@ -54,6 +59,8 @@ export default async function CoursePage({ params }: PageProps<"/courses/[langua
           dangerouslySetInnerHTML={{ __html: introHtml }}
         />
       )}
+
+      <RepoSetup course={course} repo={repo} githubLogin={user.githubLogin} />
 
       <ol className="divide-y rounded-lg border">
         {course.lessons.map((lesson) => {

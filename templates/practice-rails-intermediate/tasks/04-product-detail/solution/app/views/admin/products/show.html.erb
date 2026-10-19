@@ -1,0 +1,16 @@
+<% content_for :title, @product.name %>
+<p><%= link_to "← 商品一覧", admin_products_path, class: "muted" %></p>
+<h1>
+  <%= @product.name %>
+  <%= @product.published? ? tag.span("公開", class: "badge badge-completed") : tag.span("非公開", class: "badge") %>
+</h1>
+
+<dl class="dl">
+  <dt>ID</dt><dd><%= @product.id %></dd>
+  <dt>カテゴリ</dt><dd><%= @product.category.name %></dd>
+  <dt>価格</dt><dd><%= yen(@product.price) %>（税込 <%= yen(@product.price_with_tax) %>）</dd>
+  <dt>在庫</dt><dd><%= @product.stock %>個</dd>
+  <dt>販売実績</dt><dd>累計販売数: <%= @product.sold_quantity %>個</dd>
+  <dt>説明</dt><dd><%= simple_format(@product.description.presence || "—") %></dd>
+  <dt>更新日時</dt><dd><%= format_time(@product.updated_at) %></dd>
+</dl>

@@ -1,0 +1,25 @@
+questions:
+  - question: "`products.map((p) => <ProductRow key={p.id} ... />)` の `key` の役割はどれですか？"
+    choices:
+      - 画面に表示する見出し
+      - React が、どの行がどのデータに対応するかを見分けるための値
+      - CSS のクラス名
+      - 並び順を決める値
+    answer: 1
+    explanation: key は一覧の中で重複しない、変わらない値（普通はID）にします。React は key で行を見分けて、効率よく画面を更新します。
+  - question: 検索条件を state だけで持たずに、URL のクエリ（?q=お茶）に入れておく利点はどれですか？
+    choices:
+      - 検索が速くなる
+      - リロードやブラウザの戻る・進む、URL の共有でも同じ検索結果を表示できる
+      - パスワードを安全に送れる
+      - JavaScript が不要になる
+    answer: 1
+    explanation: 条件がURLにあれば、サーバー側のページがその条件で一覧を作れます。リロードしても、URLを送っても同じ結果になります。
+  - question: 'React Testing Library で、ボタンを `screen.getByRole("button", { name: "検索" })` のように探すのはなぜですか？'
+    choices:
+      - CSS のクラス名より速いから
+      - ユーザーと同じ見え方で探すので、見た目を変えてもテストが壊れにくく、ラベルの付け忘れにも気づけるから
+      - それ以外の方法がないから
+      - テストの実行時間を短くするため
+    answer: 1
+    explanation: 役割（role）や表示される名前で探すと、ユーザーが操作する方法とテストが一致します。クラス名や構造に依存しないので、見た目の変更に強くなります。

@@ -1,0 +1,58 @@
+ticket: |
+  ## 背景
+
+  本社の備品（プロジェクター、カメラ、延長コードなど）は、いま紙の貸出簿で管理していて、「誰が持っているか分からない」「返ってこない」ことがよくあります。管理画面で備品の貸出を管理できるようにします。
+
+  ## 仕様書
+
+  ### 備品（OfficeItem）
+
+  - 備品名（必須）、管理番号（必須、重複できない。例: `EQ-0001`）、メモ
+  - 管理画面で備品を登録できる。入力に誤りがあれば 422 でフォームとエラーを表示する
+
+  ### 貸出（Loan）
+
+  - 備品を、スタッフ（`User`）に、返却予定日を決めて貸し出す
+  - 返却予定日は必須で、**今日から30日後まで**（貸し出すときに確かめる）
+  - **貸出中の備品は貸し出せない**（`errors[:base]` に `この備品は貸出中です`）
+  - 返却すると、返却した日時を記録する。返却済みの貸出をもう一度返却しようとしたら `Loan::AlreadyReturned` を投げる。返却予定日を過ぎていても返却できる
+  - 返却予定日を過ぎても返却されていない貸出を「期限切れ」とする
+
+  ### 管理画面
+
+  - ナビゲーションに「備品」を追加し、`/admin/office_items` に備品の一覧を表示する
+    - 管理番号、備品名、状態（「貸出可」「貸出中」「期限切れ」）、借りている人の名前、返却予定日（`2026/04/22` の形）
+    - 貸出可の備品には、借りる人と返却予定日を選んで「貸し出す」フォーム、貸出中の備品には「返却する」ボタン
+  - 貸し出せなかったときは、一覧に戻って理由を表示する
+
+  ### テストが使うインターフェース
+
+  | 名前 | 内容 |
+  | --- | --- |
+  | `OfficeItem`（`name`、`management_number`、`note`） | `has_many :loans`。`#current_loan`（返却されていない貸出、なければ `nil`）、`#available?` |
+  | `Loan`（`office_item`、`user`、`due_on`、`returned_at`） | `#return!`、`#overdue?`、scope の `active`（返却されていない）と `overdue`（期限切れ） |
+  | `Loan::AlreadyReturned` | 返却済みの貸出を返却しようとしたときの例外 |
+  | `GET /admin/office_items` | 一覧 |
+  | `POST /admin/office_items` | 備品の登録（`office_item[name]`、`office_item[management_number]`、`office_item[note]`）。成功したら一覧へ |
+  | `POST /admin/office_items/:office_item_id/loans` | 貸出（`loan[user_id]`、`loan[due_on]`）。成功しても失敗しても一覧へ |
+  | `PATCH /admin/loans/:id/return` | 返却。一覧へ |
+
+  ## 受け入れ条件
+
+  - [ ] 仕様書のとおりに動く（画面でも確認する）
+  - [ ] マイグレーションと `db/schema.rb` を commit している
+  - [ ] モデルとリクエストのテストを書いている
+  - [ ] PRの説明に、設計で判断したことと、確かめたことを書いている
+  - [ ] 既存のテストがすべて通る
+
+  ## 参考
+
+  - テスト: `spec/tasks/office_item_loans_task_spec.rb`
+  - これまでの課題（商品の登録、レビューのモデル）が参考になります
+hints:
+  - |
+    `bin/rails generate model OfficeItem name:string management_number:string:uniq note:text` と `bin/rails generate model Loan office_item:references user:references due_on:date returned_at:datetime` でひな形を作り、`null: false` などを書き足してから `bin/rails db:migrate` します。
+  - |
+    返却予定日の範囲と「貸出中なら貸し出せない」は `validate :メソッド名, on: :create` にします。返却（更新）のときに確かめないようにするためです。
+  - |
+    `current_loan` は `loans.active.order(:created_at).last` のように、DBに問い合わせて返却されていない貸出を探します。scope の `overdue` は `active.where(due_on: ...Date.current)` で書けます。

@@ -1,0 +1,25 @@
+questions:
+  - question: '`["#1", "abc", "2"].compactMap { Int($0.replacingOccurrences(of: "#", with: "")) }` の結果はどれですか？'
+    choices:
+      - "[1, nil, 2]"
+      - "[1, 2]"
+      - "[1, 0, 2]"
+      - コンパイルエラー
+    answer: 1
+    explanation: compactMap は、変換の結果が nil になったもの（"abc" は数値にできない）を捨てます。
+  - question: "`func sum<Value: AdditiveArithmetic>(of value: (Element) -> Value) -> Value` の `<Value: AdditiveArithmetic>` は何を表していますか？"
+    choices:
+      - Value という名前の変数
+      - 「足し算ができてゼロがある型なら何でもよい」という型パラメーターと、その制約
+      - Value は必ず Int であること
+      - 戻り値がないこと
+    answer: 1
+    explanation: 型パラメーターにすると、Int でも Double でも同じ関数を使えます。制約（AdditiveArithmetic）があるので、関数の中で + と .zero を使えます。
+  - question: UTC で「2026-03-31 15:30」に作られた注文を、日本時間の月別に集計するとどの月に入りますか？
+    choices:
+      - 2026年3月
+      - 2026年4月
+      - 端末の設定によって変わるので決められない
+      - 2026年2月
+    answer: 1
+    explanation: 日本時間は UTC の9時間後なので、4月1日の0時30分です。月の区切りは、日本時間のカレンダーで数えます。

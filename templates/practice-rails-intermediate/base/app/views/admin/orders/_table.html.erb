@@ -1,0 +1,16 @@
+<table class="table">
+  <thead>
+    <tr><th>注文番号</th><th>会員</th><th>ステータス</th><th class="num">合計</th><th>注文日時</th></tr>
+  </thead>
+  <tbody>
+    <% orders.each do |order| %>
+      <tr>
+        <td><%= link_to "##{order.id}", admin_order_path(order) %></td>
+        <td><%= order.member.name %></td>
+        <td><%= order_status_badge(order) %></td>
+        <td class="num"><%= yen(order.total) %></td>
+        <td><%= format_time(order.ordered_at) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

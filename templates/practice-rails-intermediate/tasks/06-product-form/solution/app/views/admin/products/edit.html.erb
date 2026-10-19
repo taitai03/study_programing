@@ -1,0 +1,4 @@
+<% content_for :title, "商品の編集" %>
+<p><%= link_to "← 商品一覧", admin_products_path, class: "muted" %></p>
+<h1>商品の編集</h1>
+<%= render "form", product: @product %>

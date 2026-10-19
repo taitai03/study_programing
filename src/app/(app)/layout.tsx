@@ -18,6 +18,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link href="/dashboard" className="hover:text-foreground">
               コース一覧
             </Link>
+            {user.role !== "learner" && (
+              <Link href="/mentor" className="hover:text-foreground">
+                受講者一覧
+              </Link>
+            )}
           </nav>
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />

@@ -1,0 +1,21 @@
+# 課題の判定に使うテスト。start/ で始まるブランチ（課題の開始ブランチ）に向けたPRで実行する。
+# このファイルと、課題で用意したテスト（test/tasks/）を変更したPRは判定の対象外になる
+name: test
+
+on:
+  pull_request:
+    branches: ["start/**"]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: テスト
+        run: npm test

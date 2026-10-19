@@ -1,0 +1,54 @@
+ticket: |
+  ## 背景
+
+  アプリの注文画面で、支払い方法（クレジットカード、コンビニ払い、後払い）を選べるようにします。支払い方法ごとに手数料と、支払える金額の上限が違います。来年には「ポイント払い」も追加する予定なので、**支払い方法を追加しやすい形** にしておきたい、とリーダーから言われています。
+
+  ## やること
+
+  `SakuraMartKit/Sources/SakuraMartKit/PaymentMethod.swift` を作り、次を実装する。
+
+  ### プロトコル `PaymentMethod`
+
+  | 要件 | 内容 |
+  | --- | --- |
+  | `name: String` | 画面に表示する名前 |
+  | `maxAmount: Int?` | 支払える金額の上限。上限がなければ `nil`。**書かなかった型は `nil` になる**（デフォルトの実装） |
+  | `fee(for amount: Int) -> Int` | 手数料（円）。`amount` は送料を含む支払い金額 |
+
+  プロトコルの拡張に、どの支払い方法でも使える次のメソッドを書く。
+
+  | メソッド | 内容 |
+  | --- | --- |
+  | `canPay(_ amount: Int) -> Bool` | 払えるか。金額が0円以下なら `false`、上限を超えたら `false` |
+  | `totalWithFee(for amount: Int) -> Int` | 手数料を足した金額 |
+
+  ### 支払い方法
+
+  | 型 | `name` | 手数料 | 上限 |
+  | --- | --- | --- | --- |
+  | `CreditCardPayment` | クレジットカード | 0円 | なし |
+  | `ConvenienceStorePayment` | コンビニ払い | 1万円未満は220円、1万円以上は330円 | 30万円 |
+  | `DeferredPayment` | 後払い | 一律330円 | 5万5千円 |
+
+  ### `PaymentOptions.available(for amount: Int) -> [any PaymentMethod]`
+
+  その金額で使える支払い方法を、クレジットカード → コンビニ払い → 後払い の順に返す。
+
+  ## 受け入れ条件
+
+  - [ ] 上の仕様どおりに手数料、上限、支払える金額の判定ができる
+  - [ ] `canPay` と `totalWithFee` は、プロトコルの拡張に1回だけ書いている（支払い方法ごとに書かない）
+  - [ ] `PaymentMethod` に準拠した新しい型（`name` と `fee` だけを書いたもの）も、同じように使える
+  - [ ] 既存のテスト（`swift test --package-path SakuraMartKit`）がすべて通る
+
+  ## 参考
+
+  - テスト: `SakuraMartKit/Tests/SakuraMartKitTests/Tasks/PaymentMethodTaskTests.swift`
+  - The Swift Programming Language: Protocols https://docs.swift.org/swift-book/documentation/the-swift-programming-language/protocols/
+hints:
+  - |
+    型やメソッドは、テストから使えるように `public` にします（`public struct`、`public func`、`public init() {}`）。
+  - |
+    `maxAmount` は、プロトコルの本体に `var maxAmount: Int? { get }` と宣言し、`extension PaymentMethod` に `public var maxAmount: Int? { nil }` を書きます。上限のある型は `public let maxAmount: Int? = 300_000` のように書きます。
+  - |
+    `available(for:)` は、3つの支払い方法の配列を `filter { $0.canPay(amount) }` で絞り込めば作れます。

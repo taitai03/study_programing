@@ -36,11 +36,11 @@ export async function getLessonProgress(userId: string, lessonId: string) {
 
 /**
  * 演習またはクイズの合格を記録する。
- * レッスンにある演習とクイズの両方に合格したら、レッスンを完了にする
+ * レッスンにある演習（ブラウザの演習、またはPRの課題）とクイズの両方に合格したら、レッスンを完了にする
  */
 export async function recordPass(
   userId: string,
-  lesson: Pick<Lesson, "id" | "exercise" | "quiz">,
+  lesson: Pick<Lesson, "id" | "exercise" | "task" | "quiz">,
   part: "exercise" | "quiz",
 ) {
   const now = new Date();
@@ -64,7 +64,7 @@ export async function recordPass(
     .where(and(eq(progress.userId, userId), eq(progress.lessonId, lesson.id)));
 
   const done =
-    (!lesson.exercise || row.exercisePassedAt !== null) &&
+    (!(lesson.exercise || lesson.task) || row.exercisePassedAt !== null) &&
     (!lesson.quiz || row.quizPassedAt !== null);
   if (done && row.status !== "completed") {
     await db

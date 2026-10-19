@@ -62,12 +62,12 @@ flowchart LR
 | 要素 | 内容 |
 | --- | --- |
 | アプリ | Next.js（App Router）＋ TypeScript。Vercelにデプロイ |
-| 認証 | Better Auth（GitHubプロバイダー）。Auth.js v5 は正式版が出ておらず、開発が Better Auth に引き継がれたため。M1 では GitHub OAuth App を使い、M3 で GitHub App の OAuth 機能に切り替えて、ログインとリポジトリ連携を1つのAppにまとめる |
+| 認証 | Better Auth（GitHubプロバイダー）。Auth.js v5 は正式版が出ておらず、開発が Better Auth に引き継がれたため。M1 では GitHub OAuth App を使い、M3 で GitHub App の OAuth 機能に切り替えて、ログインとリポジトリ連携を1つのAppにまとめた（設定は [github-app.md](github-app.md)） |
 | DB | PostgreSQL（Vercel Marketplace経由のNeon）＋ Drizzle ORM |
 | 教材 | このリポジトリの `content/` 配下にMarkdownとYAMLで置く。ビルド時に読み込む |
 | ブラウザ内実行 | Monacoエディタ。JS/TSはWeb Workerで実行し、TSはブラウザ内で変換する（sucraseなど）。Rubyは ruby.wasm をWeb Workerで実行する。どちらも制限時間を過ぎたらWorkerごと停止する |
 | GitHub App | 受講者が自分の課題リポジトリにインストールする。PRとActionsの結果をWebhookで受け取り、PRにコメントを書く |
-| テンプレートリポジトリ | コースごとに1つ（例: `practice-ts-intermediate`）。publicにする。課題のひな形、テスト、Actionsのワークフローを含む |
+| テンプレートリポジトリ | コースごとに1つ（例: `practice-ts-intermediate`）。publicにする。課題のひな形、テスト、Actionsのワークフローを含む。ソースはこのリポジトリの `templates/` に置き、スクリプトで公開する（[templates/README.md](../templates/README.md)） |
 | AIレビュー | Vercel側からClaude APIを呼ぶ。APIキーはVercelの環境変数だけに置き、受講者のリポジトリには置かない |
 
 ## 4. 主な流れ
@@ -117,6 +117,14 @@ sequenceDiagram
   GH->>APP: Webhook（マージ）→ 完了として記録
 ```
 
+#### 判定のしくみ（M3 で実装）
+
+- Webhook（`pull_request`、`workflow_run`、`check_suite`）を受け取ったら、署名を確かめてすぐに 202 を返し、判定は `after()` で行う
+- 判定は毎回 GitHub から最新の状態（PR、変更されたファイル、head_sha のチェックの結果）を読んで行う。同じイベントが何度届いても結果は変わらない
+- 変更されたファイルに変更禁止のファイルがあれば「判定対象外」、チェックが終わっていなければ「判定待ち」、すべて成功なら「合格」、1つでも失敗なら「不合格」
+- 判定が変わったら、PRに結果をコメントする（1つのコメントを書き換える）
+- Webhook を取りこぼしたときや、ローカルで Webhook を受け取れないときは、画面の「GitHub の状態を読み直す」で、App の権限で読み直せる
+
 #### 完了条件
 
 - 中級: PRのテストがすべて通った状態でマージされたら完了
@@ -146,9 +154,10 @@ content/
 │   │       ├── lesson.md        # 本文（frontmatterにタイトル・順番・所要時間）
 │   │       └── exercise.yaml    # ブラウザ内課題: 初期コード、テストケース、ヒント
 │   ├── intermediate/
-│   │   └── 01-array-methods/
+│   │   └── 01-sales-csv/
 │   │       ├── lesson.md
-│   │       └── task.yaml        # PR課題: テンプレートリポジトリと開始ブランチ名、完了条件
+│   │       ├── task.yaml        # PR課題: 課題文（チケット）、変更してはいけないファイル、ヒント
+│   │       └── quiz.yaml
 │   └── advanced/
 ├── common/                    # 共通: 開発の準備（ターミナル、環境構築、Git、PR）
 ├── ruby/
@@ -161,8 +170,9 @@ content/
 ```
 
 - 中級以降のテンプレートリポジトリには、題材となる「さくらマート」のアプリ（Next.js版・Rails版・iOS版）を入れ、課題はこのアプリへの機能追加やバグ修正として出す
-- テンプレートリポジトリは、MVPではそれぞれ別リポジトリとして手作業で管理する。`task.yaml` から開始ブランチ名で参照する
-- 将来は、このリポジトリの `templates/` を正として、テンプレートリポジトリへ自動で同期する仕組みも検討する
+- テンプレートリポジトリのソースは、このリポジトリの `templates/<リポジトリ名>/` を正とする（`base/` が main、`tasks/<スラッグ>/start/` が開始ブランチの差分、`tasks/<スラッグ>/solution/` が模範解答）。`scripts/templates.ts` で検証し、`publish` で GitHub のテンプレートリポジトリに反映する
+- 開始ブランチ名は `start/<レッスンのスラッグ>`（例: `start/07-order-filter`）。コースとテンプレートリポジトリの対応は `content/courses.yaml` の `templateRepo` に書く
+- 受講者が変更してはいけないファイル（課題のテスト、テストの設定）は、`courses.yaml` の `protectedPaths`（コース共通）と `task.yaml` の `protectedPaths`（課題ごと）に glob で書く。`.github/` は常に変更禁止
 
 ## 6. データモデル（PostgreSQL）
 
@@ -170,9 +180,9 @@ content/
 | --- | --- | --- |
 | `users` | id, github_id, github_login, name, avatar_url, role（learner / mentor / admin）, created_at | 受講者・管理者 |
 | `allowed_users` | github_login, role, invited_by, created_at | ログインを許可するGitHubユーザー（許可リスト） |
-| `course_repos` | id, user_id, course_id, repo_full_name, installation_id, created_at | 受講者のコースとGitHubリポジトリの紐付け |
+| `course_repos` | id, user_id, course_id, repo_full_name, installation_id, is_private, created_at | 受講者のコースとGitHubリポジトリの紐付け（受講者 × コースで1つ） |
 | `progress` | user_id, lesson_id, status（not_started / in_progress / completed）, completed_at | レッスンごとの進捗 |
-| `submissions` | id, user_id, lesson_id, kind（browser / quiz / pull_request）, pr_number, head_sha, status（pending / passed / failed / invalid）, test_summary（jsonb）, created_at | 提出と判定結果の履歴 |
+| `submissions` | id, user_id, lesson_id, kind（browser / quiz / pull_request）, status（pending / passed / failed / invalid）, summary（jsonb）, repo_full_name, pr_number, head_sha, created_at, updated_at | 提出と判定結果の履歴。PRは head_sha ごとに1行（Webhook が重複しても同じ行を更新する） |
 | `badges` | id, user_id, course_id, awarded_at | コース修了バッジ |
 | `ai_reviews` | id, submission_id, model, body, input_tokens, output_tokens, created_at | AIレビュー結果と使用量（費用管理用） |
 

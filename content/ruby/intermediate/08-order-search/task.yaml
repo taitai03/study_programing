@@ -1,0 +1,61 @@
+ticket: |
+  ## 背景
+
+  注文が増えて、管理画面の注文一覧（`/admin/orders`）は直近の50件しか見られません。CSチームから「期間とステータスで絞り込みたい」、経理チームから「同じ条件で、注文のデータを表計算ソフトに取り込みたい（JSON で取れれば変換ツールを作る）」と要望が来ています。
+
+  ## やること
+
+  `GET /admin/orders`（画面）に絞り込みとページ分けを追加し、`GET /admin/orders.json` で同じ条件の注文を JSON で返す。
+
+  ### 条件（クエリ）
+
+  | クエリ | 内容 |
+  | --- | --- |
+  | `from` | この日（日本時間、`YYYY-MM-DD`）以降の注文 |
+  | `to` | この日（日本時間、`YYYY-MM-DD`）までの注文（その日の終わりまで含む） |
+  | `status` | このステータスの注文 |
+  | `page` | ページ（1ページ50件。省略すると1） |
+
+  - それぞれ省略できる。空の値も、指定がないものとして扱う
+  - 並び順は、いまと同じ新しい順
+  - 正しくない値（日付の形式が違う、存在しない日付、`from` が `to` より後、知らないステータス）のときは **400**。画面ではエラーの理由を表示し、JSON では `{ "error": "理由" }` を返す
+
+  ### 画面
+
+  - 一覧の上に、期間（`from`、`to`）とステータス（`status`）の絞り込みのフォームを置く
+  - 件数とページを表示し、前後のページへのリンクを置く（いまの条件を保つ）
+
+  ### JSON
+
+  ```json
+  {
+    "orders": [
+      { "id": 123, "member": { "id": 5, "name": "佐藤 結衣" }, "status": "paid", "total": 3278, "ordered_at": "2026-04-15T10:00:00+09:00" }
+    ],
+    "page": 1,
+    "total_pages": 3,
+    "total_count": 128
+  }
+  ```
+
+  ログインしていなければ、画面と同じく使えないこと。
+
+  ## 受け入れ条件
+
+  - [ ] 期間とステータスで絞り込め、組み合わせられる
+  - [ ] 50件ずつのページに分けられる
+  - [ ] JSON が上の形で返る
+  - [ ] 正しくない条件は 400 で、理由を返す・表示する
+  - [ ] 既存のテストがすべて通る
+
+  ## 参考
+
+  - テスト: `spec/tasks/order_search_task_spec.rb`
+  - Rails ガイド: Active Record クエリインターフェイス https://railsguides.jp/active_record_querying.html
+hints:
+  - |
+    `Order` に期間の scope（`ordered_from`、`ordered_until`）を作り、条件があるときだけ `orders = orders.ordered_from(...)` のようにつないでいきます。
+  - |
+    条件のチェックと組み立ては、`ActiveModel::Model` を include した検索用のクラス（`app/models/order_search.rb` など）にまとめると、画面と JSON で同じものを使えます。日付は `/\A\d{4}-\d{2}-\d{2}\z/` で形を確かめてから `Date.strptime(value, "%Y-%m-%d")` で変換し、`Date::Error` を受け止めます。
+  - |
+    コントローラーでは `respond_to do |format| format.html; format.json { render json: ... } end` で返す形を分けます。400 のときは `render :index, status: :bad_request` のように、ステータスを指定します。

@@ -1,0 +1,59 @@
+ticket: |
+  ## 背景
+
+  いまは注文のステータスをDBで直接書き換えています。操作ミスで「発送済」の注文が「受付」に戻ってしまう事故も起きました。管理画面の注文詳細（`/admin/orders/[id]`）から、**決められた順番どおりにだけ** ステータスを変更できるようにします。
+
+  ## ステータスの順番（業務仕様）
+
+  ```
+  受付(pending) → 支払済(paid) → 発送済(shipped) → 完了(completed)
+  受付・支払済 → キャンセル(cancelled)
+  ```
+
+  キャンセルしたときは、その注文で付与したポイント（`pointsEarned`）を会員のポイントから取り消す（残高はマイナスにしない）。
+
+  ## やること
+
+  ### 1. 業務ロジック: `src/lib/order-status.ts`
+
+  | 名前 | 内容 |
+  | --- | --- |
+  | `ORDER_STATUS_TRANSITIONS` | ステータスごとの、次に進めるステータスの配列（上の順番どおり） |
+  | `nextStatuses(status)` | 次に進めるステータスの配列を返す |
+  | `changeOrderStatus(db, orderId, next)` | ステータスを変える。戻り値は `{ ok: true, order }` か `{ ok: false, error: メッセージ }`。順番どおりでない変更、存在しない注文はエラーにして、DBは変えない |
+
+  ### 2. Server Action: `src/app/admin/orders/[id]/actions.ts`
+
+  `updateOrderStatus(orderId, prevState, formData)`: ログインを確かめ、`formData` の `status` で `changeOrderStatus` を呼ぶ。戻り値は `{ ok: メッセージ }` か `{ error: メッセージ }`。
+
+  ### 3. フォーム: `src/app/admin/orders/[id]/order-status-form.tsx`
+
+  Client Component `OrderStatusForm({ orderId, status })`
+
+  - 「新しいステータス」というラベルの選択肢（いまのステータスから進めるものだけ。表示は日本語）と、「変更する」ボタン
+  - 送信中はボタンを押せなくし、「変更中…」と表示する
+  - エラーは `role="alert"`、成功のメッセージは `role="status"` の要素に表示する
+  - 進めるステータスがなければ、フォームの代わりに「これ以上ステータスを変更できません」と表示する
+
+  注文詳細のページにフォームを表示する。
+
+  ## 受け入れ条件
+
+  - [ ] 決められた順番どおりにだけ、ステータスを変更できる（業務ロジックで守る）
+  - [ ] キャンセルすると、付与したポイントを取り消す（残高はマイナスにしない）
+  - [ ] フォームが上の仕様どおりに表示・動作する
+  - [ ] 管理画面の注文詳細から、ステータスを変更できる（画面で確認）
+  - [ ] 既存のテストと型チェックがすべて通る
+
+  ## 参考
+
+  - テスト: `src/lib/order-status.task.test.ts`、`src/app/admin/orders/[id]/order-status-form.task.test.tsx`
+  - 商品の編集フォーム（`src/app/admin/products/[id]/edit/`）が、Server Action と `useActionState` の例です
+  - Next.js: Server Actions https://nextjs.org/docs/app/getting-started/updating-data
+hints:
+  - |
+    `changeOrderStatus` は `db.transaction((tx) => { ... })` の中で、注文を読む → 順番を確かめる → 更新する → キャンセルならポイントを取り消す、の順に書きます。エラーのときは、更新する前に `return { ok: false, error }` します。
+  - |
+    フォームは `useActionState(updateOrderStatus.bind(null, orderId), null)` で、`[state, action, pending]` を受け取ります。`<form action={action}>` にし、選択肢の `name` は `status` にします。
+  - |
+    テストでは Server Action（`./actions`）がモックになります。フォームから送る値（`formData.get("status")`）と、表示する要素の `role` を仕様どおりにしましょう。

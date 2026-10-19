@@ -1,0 +1,7 @@
+.DS_Store
+/.build
+/SakuraMartKit/.build
+/SakuraMartKit/.swiftpm
+xcuserdata/
+DerivedData/
+*.xcuserstate

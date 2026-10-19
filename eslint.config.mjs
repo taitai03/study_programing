@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // さくらマートのテンプレート（別のリポジトリとして配る。それぞれに設定がある）
+    "templates/**",
   ]),
 ]);
 

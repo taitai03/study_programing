@@ -1,0 +1,25 @@
+questions:
+  - question: 「同じ会員は同じ商品に1つだけレビューを書ける」を、モデルのバリデーションに加えて DB の一意の制約でも守る理由はどれですか？
+    choices:
+      - DBの制約があると、エラーメッセージが日本語になるから
+      - 同時に2つのリクエストが来たときなど、バリデーションをすり抜けても、DBが重複を防げるから
+      - バリデーションは本番環境では動かないから
+      - 検索が遅くなるのを防ぐため
+    answer: 1
+    explanation: uniqueness のバリデーションは「保存する前に確かめる」ので、同時の保存ではすり抜けることがあります。DBの一意の制約が最後に重複を防ぎます。
+  - question: マイグレーションを作って `bin/rails db:migrate` したあと、commit するべきファイルはどれですか？
+    choices:
+      - "`db/migrate/` のファイルだけ"
+      - "`db/schema.rb` だけ"
+      - "`db/migrate/` のファイルと `db/schema.rb` の両方"
+      - DBのファイル（`storage/development.sqlite3`）
+    answer: 2
+    explanation: マイグレーションのファイルは変更の履歴、schema.rb はいまのテーブルの形です。テストや新しい環境は schema.rb からテーブルを作るので、両方を commit します。
+  - question: "`has_many :reviews, dependent: :destroy` の `dependent: :destroy` の意味はどれですか？"
+    choices:
+      - レビューを削除すると、商品も削除する
+      - 商品を削除すると、その商品のレビューも削除する
+      - レビューがあると商品を削除できない
+      - 商品を削除しても、レビューはそのまま残る
+    answer: 1
+    explanation: 親（商品）を削除したときに、子（レビュー）も一緒に削除します。子があれば削除できないようにするときは `:restrict_with_error` を使います。

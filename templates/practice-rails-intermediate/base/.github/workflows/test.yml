@@ -1,0 +1,28 @@
+# 課題の判定に使うテスト。start/ で始まるブランチ（課題の開始ブランチ）に向けたPRで実行する。
+# このファイルと、課題で用意したテスト（spec/tasks/）を変更したPRは判定の対象外になる
+name: test
+
+on:
+  pull_request:
+    branches: ["start/**"]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RAILS_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: テスト用のDBを準備する（db/schema.rb からテーブルを作る）
+        run: bin/rails db:create db:schema:load
+      - name: テスト
+        run: bundle exec rspec
+      - name: 課題ごとの追加のチェック
+        if: hashFiles('.task/check.sh') != ''
+        run: bash .task/check.sh

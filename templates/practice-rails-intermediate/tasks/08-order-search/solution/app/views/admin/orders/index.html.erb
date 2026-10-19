@@ -1,0 +1,33 @@
+<% content_for :title, "注文" %>
+<h1>注文</h1>
+
+<%= form_with url: admin_orders_path, method: :get, class: "actions" do |form| %>
+  <div class="field">
+    <%= form.label :from, "期間" %>
+    <span class="actions">
+      <%= form.date_field :from, value: @search.from %> 〜 <%= form.date_field :to, value: @search.to %>
+    </span>
+  </div>
+  <div class="field">
+    <%= form.label :status, "ステータス" %>
+    <%= form.select :status, Order::STATUS_LABELS.invert, { include_blank: "すべて", selected: @search.status } %>
+  </div>
+  <%= form.submit "絞り込む", class: "button", name: nil %>
+  <%= link_to "クリア", admin_orders_path %>
+<% end %>
+
+<% if @error %>
+  <p class="flash flash-alert" role="alert"><%= @error %></p>
+<% else %>
+  <p class="muted"><%= @search.total_count %>件（<%= @search.current_page %> / <%= @search.total_pages %> ページ）</p>
+  <%= render "table", orders: @orders %>
+
+  <nav class="actions">
+    <% if @search.current_page > 1 %>
+      <%= link_to "← 前へ", admin_orders_path(@search.to_query(page: @search.current_page - 1)) %>
+    <% end %>
+    <% if @search.current_page < @search.total_pages %>
+      <%= link_to "次へ →", admin_orders_path(@search.to_query(page: @search.current_page + 1)) %>
+    <% end %>
+  </nav>
+<% end %>

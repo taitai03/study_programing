@@ -1,0 +1,42 @@
+<% content_for :title, "備品" %>
+<div class="actions">
+  <h1>備品の貸出</h1>
+  <%= link_to "備品を登録する", new_admin_office_item_path, class: "button" %>
+</div>
+
+<table class="table">
+  <thead>
+    <tr><th>管理番号</th><th>備品名</th><th>状態</th><th>借りている人</th><th>返却予定日</th><th></th></tr>
+  </thead>
+  <tbody>
+    <% @office_items.each do |item| %>
+      <% loan = item.current_loan %>
+      <tr>
+        <td><%= item.management_number %></td>
+        <td><%= item.name %></td>
+        <td>
+          <% if loan.nil? %>
+            <span class="badge badge-completed">貸出可</span>
+          <% elsif loan.overdue? %>
+            <span class="badge badge-pending">期限切れ</span>
+          <% else %>
+            <span class="badge badge-paid">貸出中</span>
+          <% end %>
+        </td>
+        <td><%= loan&.user&.name %></td>
+        <td><%= loan&.due_on&.strftime("%Y/%m/%d") %></td>
+        <td>
+          <% if loan %>
+            <%= button_to "返却する", return_admin_loan_path(loan), method: :patch, class: "button button-outline" %>
+          <% else %>
+            <%= form_with model: [ :admin, item, Loan.new ], class: "actions" do |form| %>
+              <%= form.collection_select :user_id, @staff, :id, :name, {}, aria: { label: "借りる人" } %>
+              <%= form.date_field :due_on, value: Date.current + 7, aria: { label: "返却予定日" } %>
+              <%= form.submit "貸し出す", class: "button" %>
+            <% end %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

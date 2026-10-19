@@ -1,0 +1,40 @@
+<%= form_with model: [ :admin, product ], class: "form" do |form| %>
+  <% if product.errors.any? %>
+    <div class="errors" role="alert">
+      <p><%= product.errors.count %>件の入力に誤りがあります</p>
+      <ul>
+        <% product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, required: true %>
+  </div>
+  <div class="field">
+    <%= form.label :description %>
+    <%= form.text_area :description, rows: 4 %>
+  </div>
+  <div class="field">
+    <%= form.label :price, "価格（税抜・円）" %>
+    <%= form.number_field :price, min: 1 %>
+  </div>
+  <div class="field">
+    <%= form.label :stock %>
+    <%= form.number_field :stock, min: 0 %>
+  </div>
+  <div class="field">
+    <%= form.label :category_id, "カテゴリ" %>
+    <%= form.collection_select :category_id, Category.order(:id), :id, :name, include_blank: "選んでください" %>
+  </div>
+  <div class="field">
+    <label><%= form.check_box :published %> 公開する</label>
+  </div>
+  <div class="actions">
+    <%= form.submit product.new_record? ? "登録する" : "更新する", class: "button" %>
+    <%= link_to "キャンセル", admin_products_path %>
+  </div>
+<% end %>

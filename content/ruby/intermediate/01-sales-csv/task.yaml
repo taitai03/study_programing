@@ -1,0 +1,54 @@
+ticket: |
+  ## 背景
+
+  経理チームから「月ごとに、どの商品がいくら売れたかをExcelで見たい」と依頼がありました。旧システムから出力した注文明細のCSV（`data/order-lines-sample.csv` がその例）をもとに、**月別・商品別の売上CSV** を出力するスクリプトを作ります。
+
+  ## やること
+
+  `lib/monthly_sales_report.rb` の次のメソッドを実装する。Rake タスク（`lib/tasks/reports.rake`）はできています。
+
+  | メソッド | 内容 |
+  | --- | --- |
+  | `MonthlySalesReport.parse(csv_text)` | 注文明細CSVを読み込み、`OrderLine` の配列にする |
+  | `MonthlySalesReport.aggregate(lines)` | 月別・商品別に集計し、`{ month:, product_id:, product_name:, quantity:, sales: }` の配列を返す |
+  | `MonthlySalesReport.to_csv(rows)` | 集計結果をCSVの文字列にする |
+
+  CSVの読み書きには、Ruby の CSV ライブラリを使う（Gemfile に `gem "csv"` を追加すること）。
+
+  ### 入力（注文明細CSV）
+
+  - 1行目は見出し: `order_id,ordered_at,status,product_id,product_name,quantity,unit_price`
+  - `ordered_at` は UTC の日時（例: `2026-03-31T15:00:00Z`）。`OrderLine` の `ordered_at` は `Time` にする
+  - 値にカンマが含まれる場合はダブルクォートで囲まれている
+  - 改行コードは LF または CRLF
+
+  ### 出力（月別・商品別の売上CSV）
+
+  - 1行目は見出し: `month,product_id,product_name,quantity,sales`
+  - `month` は **日本時間** の年月（例: `2026-04`）
+  - `quantity` は数量の合計、`sales` は 単価 × 数量 の合計（税抜）
+  - 並び順: 月の古い順 → 同じ月の中では売上の多い順 → 売上が同じなら商品IDの小さい順
+  - 必要な値はダブルクォートで囲む（中のダブルクォートは `""` にする）。最後の行も改行で終わる
+
+  ## 受け入れ条件
+
+  - [ ] 注文明細CSVの各行を、数値と日時に変換して読み込める（カンマを含む商品名、CRLF も読める）
+  - [ ] 列の数が合わない行や、数値でない値があれば、**何行目か** をメッセージに含めた `MonthlySalesReport::InvalidRow` にする
+  - [ ] キャンセル（`cancelled`）の注文は集計に含めない
+  - [ ] 日本時間の月ごと・商品ごとに、数量と売上を合計し、指定の順に並べる
+  - [ ] 指定の形式のCSVを出力する
+  - [ ] `bin/rails reports:monthly_sales INPUT=data/order-lines-sample.csv OUTPUT=output/monthly-sales.csv` でファイルが出力される
+  - [ ] 既存のテスト（`bundle exec rspec`）がすべて通る
+
+  ## 参考
+
+  - テスト: `spec/tasks/monthly_sales_report_task_spec.rb`（`bundle exec rspec spec/tasks` で、このテストだけを実行できます）
+  - Ruby: CSV https://docs.ruby-lang.org/ja/latest/class/CSV.html 、Enumerable https://docs.ruby-lang.org/ja/latest/class/Enumerable.html
+protectedPaths: []
+hints:
+  - |
+    まずテストを実行して、どのテストが何を期待しているかを読みましょう。`bin/rails console` で `MonthlySalesReport.parse(File.read("data/order-lines-sample.csv"))` のように試しながら書くと、結果をすぐに確かめられます。
+  - |
+    `CSV.parse(text, skip_blanks: true)` は、各行を文字列の配列にして返します。`each_with_index` で行番号（見出しが1行目なので、データは `i + 2` 行目）を持ちながら変換しましょう。
+  - |
+    数値には `Integer(value, 10)`、日時には `Time.iso8601(value)` を使い、`rescue ArgumentError` で `InvalidRow` に変えます。月は `ordered_at.in_time_zone("Tokyo").strftime("%Y-%m")` で取り出せます。
