@@ -1,0 +1,185 @@
+ticket: |
+  ## 背景
+  ネットショップの買い物かごの画面で表示する金額を、クラスとして作ることになりました。
+  商品クラス `Product` は途中まで作ってあります。買い物かごクラス `Cart` は、メソッドの名前だけ決まっています。
+
+  ## やること
+  ### `Product`
+  - `name`（商品名）と `price`（税抜価格）を外から読めるようにする
+  - `price_with_tax`: 税込価格を返す（端数は切り捨て）
+
+  ### `Cart`
+  - `add(product, quantity = 1)`: 商品を入れる。同じ商品を入れたら数量を増やす。数量が1未満なら `ArgumentError` にする
+  - `item_count`: 入っている商品の数量の合計を返す
+  - `subtotal`: 小計（税抜価格 × 数量 の合計）を返す
+  - `total_with_tax`: 小計に消費税10%を加えた金額を返す（端数は切り捨て。商品ごとではなく、小計に対して計算する）
+  - `shipping_fee`: 送料を返す。税込5,000円以上なら0円、それ以外は550円。ただし、かごが空なら0円
+  - `total`: 支払う金額（税込金額 ＋ 送料）を返す
+
+  ## 受け入れ条件
+  - [ ] 商品の名前と価格が読め、税込価格が正しい（398円 → 437円）
+  - [ ] 同じ商品を2回入れると、数量がまとまって増える
+  - [ ] 数量が0個やマイナスのときは `ArgumentError` になる
+  - [ ] りんごジュース3個と食パン2個のかごで、小計1,690円・税込1,859円・送料550円・合計2,409円になる
+  - [ ] 竹のまな板を3個入れると、税込6,534円で送料が無料になる
+  - [ ] 空のかごは、数量・小計・送料・合計がすべて0になる
+starter: |
+  class Product
+    # TODO: name と price を外から読めるようにする
+
+    def initialize(name:, price:)
+      @name = name
+      @price = price # 税抜
+    end
+
+    # 税込価格
+    def price_with_tax
+      # TODO
+    end
+  end
+
+  class Cart
+    def initialize
+      @quantities = Hash.new(0) # 商品 => 数量
+    end
+
+    # 商品を入れる（数量が1未満なら ArgumentError）
+    def add(product, quantity = 1)
+      # TODO
+    end
+
+    # 数量の合計
+    def item_count
+      # TODO
+    end
+
+    # 小計（税抜）
+    def subtotal
+      # TODO
+    end
+
+    # 税込金額
+    def total_with_tax
+      # TODO
+    end
+
+    # 送料（税込5,000円以上なら無料、かごが空なら0円）
+    def shipping_fee
+      # TODO
+    end
+
+    # 支払う金額
+    def total
+      # TODO
+    end
+  end
+
+  juice = Product.new(name: "国産りんごジュース 1L", price: 398)
+  bread = Product.new(name: "ふっくら食パン", price: 248)
+
+  cart = Cart.new
+  cart.add(juice, 3)
+  cart.add(bread, 2)
+  p cart.subtotal
+  p cart.total
+solution: |
+  class Product
+    attr_reader :name, :price
+
+    def initialize(name:, price:)
+      @name = name
+      @price = price # 税抜
+    end
+
+    def price_with_tax
+      price * 110 / 100
+    end
+  end
+
+  class Cart
+    FREE_SHIPPING_THRESHOLD = 5000
+    SHIPPING_FEE = 550
+
+    def initialize
+      @quantities = Hash.new(0)
+    end
+
+    def add(product, quantity = 1)
+      raise ArgumentError, "数量は1以上にしてください" if quantity < 1
+
+      @quantities[product] += quantity
+    end
+
+    def item_count
+      @quantities.values.sum
+    end
+
+    def subtotal
+      @quantities.sum { |product, quantity| product.price * quantity }
+    end
+
+    def total_with_tax
+      subtotal * 110 / 100
+    end
+
+    def shipping_fee
+      return 0 if item_count == 0
+      return 0 if total_with_tax >= FREE_SHIPPING_THRESHOLD
+
+      SHIPPING_FEE
+    end
+
+    def total
+      total_with_tax + shipping_fee
+    end
+  end
+
+  juice = Product.new(name: "国産りんごジュース 1L", price: 398)
+  bread = Product.new(name: "ふっくら食パン", price: 248)
+tests:
+  - name: 商品の名前と価格が読め、税込価格が正しい
+    code: |
+      expect(juice.name).to eq("国産りんごジュース 1L")
+      expect(juice.price).to eq(398)
+      expect(juice.price_with_tax).to eq(437)
+  - name: 同じ商品を2回入れると、数量がまとまって増える
+    code: |
+      cart = Cart.new
+      cart.add(juice, 2)
+      cart.add(juice)
+      expect(cart.item_count).to eq(3)
+      expect(cart.subtotal).to eq(1194)
+  - name: 数量が0個やマイナスのときは ArgumentError になる
+    code: |
+      cart = Cart.new
+      expect { cart.add(juice, 0) }.to raise_error(ArgumentError)
+      expect { cart.add(juice, -1) }.to raise_error(ArgumentError)
+      expect(cart.item_count).to eq(0)
+  - name: りんごジュース3個と食パン2個のかごの金額が正しい
+    code: |
+      cart = Cart.new
+      cart.add(juice, 3)
+      cart.add(bread, 2)
+      expect(cart.subtotal).to eq(1690)
+      expect(cart.total_with_tax).to eq(1859)
+      expect(cart.shipping_fee).to eq(550)
+      expect(cart.total).to eq(2409)
+  - name: 竹のまな板を3個入れると、税込6,534円で送料が無料になる
+    code: |
+      cart = Cart.new
+      cart.add(Product.new(name: "竹のまな板", price: 1980), 3)
+      expect(cart.total_with_tax).to eq(6534)
+      expect(cart.shipping_fee).to eq(0)
+      expect(cart.total).to eq(6534)
+  - name: 空のかごは、数量・小計・送料・合計がすべて0になる
+    code: |
+      cart = Cart.new
+      expect(cart.item_count).to eq(0)
+      expect(cart.subtotal).to eq(0)
+      expect(cart.shipping_fee).to eq(0)
+      expect(cart.total).to eq(0)
+hints:
+  - "まず「実行」して、最初に出るエラーを読みましょう。`undefined method 'price'` が出たら、`attr_reader` が足りていません。"
+  - "`add` は、解説の「インスタンスが状態を持つ」の例に、`raise` の行を足すだけで書けます。"
+  - "小計は、ハッシュに対するブロック付きの `sum` で書けます。`@quantities.sum { |product, quantity| ... }` のように、キーと値の2つを受け取ります。"
+  - "`total` や `shipping_fee` の中では、同じクラスの `subtotal` や `total_with_tax` をそのまま呼び出せます。"

@@ -11,12 +11,13 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { TestCase } from "@/lib/content/schema";
-import { runInBrowser } from "@/lib/runner/client";
+import { type BrowserLanguage, runInBrowser } from "@/lib/runner/client";
 import type { RunResult } from "@/lib/runner/harness";
+import { prepareRuby } from "@/lib/runner/ruby-client";
 import { submitExerciseResult } from "./actions";
 
 // エディタ本体はCDNから読み込む。バージョンは package.json の monaco-editor（型定義用）と揃える
@@ -44,6 +45,11 @@ function configureMonaco(monaco: Monaco) {
   });
   ts.typescriptDefaults.setExtraLibs([{ content: SANDBOX_LIB, filePath: "sandbox.d.ts" }]);
 }
+
+const LANGUAGES = {
+  typescript: { label: "TypeScript", monaco: "typescript", extension: "ts" },
+  ruby: { label: "Ruby", monaco: "ruby", extension: "rb" },
+} satisfies Record<BrowserLanguage, { label: string; monaco: string; extension: string }>;
 
 type TypeError = { line: number; message: string };
 
@@ -73,15 +79,20 @@ function saveDraft(lessonId: string, code: string) {
 
 export function CodeWorkspace({
   lessonId,
+  language,
   starter,
   tests,
-  typecheck,
+  typecheck: typecheckOption,
 }: {
   lessonId: string;
+  language: BrowserLanguage;
   starter: string;
   tests: TestCase[];
   typecheck: boolean;
 }) {
+  const lang = LANGUAGES[language];
+  // 型チェックができるのは TypeScript だけ
+  const typecheck = language === "typescript" && typecheckOption;
   const { resolvedTheme } = useTheme();
   const router = useRouter();
   // 書きかけのコードはブラウザに保存しておき、次に開いたときに復元する
@@ -93,6 +104,21 @@ export function CodeWorkspace({
   const [submitting, startSubmit] = useTransition();
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
+  // Ruby は実行環境（ruby.wasm）のダウンロードが必要なので、開いた時点で準備を始める
+  const [runtimeReady, setRuntimeReady] = useState(language !== "ruby");
+
+  useEffect(() => {
+    if (language !== "ruby") return;
+    let active = true;
+    prepareRuby()
+      .then(() => active && setRuntimeReady(true))
+      .catch(() => {
+        // 失敗したときは実行時にもう一度読み込み、エラーを出力に表示する
+      });
+    return () => {
+      active = false;
+    };
+  }, [language]);
 
   async function getTypeErrors(): Promise<TypeError[]> {
     const monaco = monacoRef.current;
@@ -114,14 +140,14 @@ export function CodeWorkspace({
 
   async function run() {
     setOutput({ kind: "running" });
-    setOutput({ kind: "run", result: await runInBrowser(code) });
+    setOutput({ kind: "run", result: await runInBrowser(language, code) });
   }
 
   function judge() {
     startSubmit(async () => {
       setOutput({ kind: "running" });
       const [result, typeErrors] = await Promise.all([
-        runInBrowser(code, tests),
+        runInBrowser(language, code, tests),
         typecheck ? getTypeErrors() : Promise.resolve([]),
       ]);
       const passedCount = result.tests.filter((t) => t.passed).length;
@@ -148,7 +174,13 @@ export function CodeWorkspace({
     <div className="flex h-[70vh] flex-col lg:h-full">
       <div className="flex items-center gap-2 border-b bg-background px-3 py-2">
         <span className="text-sm font-medium">エディタ</span>
-        <span className="text-xs text-muted-foreground">TypeScript</span>
+        <span className="text-xs text-muted-foreground">{lang.label}</span>
+        {!runtimeReady && (
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Loader2Icon className="size-3 animate-spin" />
+            {lang.label} を準備中
+          </span>
+        )}
         <div className="ml-auto flex gap-2">
           <Button
             variant="ghost"
@@ -175,8 +207,8 @@ export function CodeWorkspace({
 
       <div className="min-h-0 flex-[3]">
         <Editor
-          path={`${lessonId}.ts`}
-          language="typescript"
+          path={`${lessonId}.${lang.extension}`}
+          language={lang.monaco}
           value={code}
           theme={resolvedTheme === "dark" ? "vs-dark" : "light"}
           beforeMount={configureMonaco}
@@ -200,13 +232,21 @@ export function CodeWorkspace({
       </div>
 
       <div className="min-h-0 flex-[2] overflow-auto border-t bg-background p-4 font-mono text-sm">
-        <OutputView output={output} />
+        <OutputView output={output} runtimeReady={runtimeReady} label={lang.label} />
       </div>
     </div>
   );
 }
 
-function OutputView({ output }: { output: Output }) {
+function OutputView({
+  output,
+  runtimeReady,
+  label,
+}: {
+  output: Output;
+  runtimeReady: boolean;
+  label: string;
+}) {
   if (output.kind === "idle") {
     return (
       <p className="font-sans text-muted-foreground">
@@ -215,7 +255,12 @@ function OutputView({ output }: { output: Output }) {
     );
   }
   if (output.kind === "running") {
-    return <Loader2Icon className="size-5 animate-spin text-muted-foreground" />;
+    return (
+      <div className="flex items-center gap-2 font-sans text-muted-foreground">
+        <Loader2Icon className="size-5 animate-spin" />
+        {!runtimeReady && `${label} を準備しています。初回は少し時間がかかります`}
+      </div>
+    );
   }
 
   const { result } = output;

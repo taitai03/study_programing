@@ -1,0 +1,25 @@
+questions:
+  - question: "`puts \"非公開です\" unless published` は、どんなときに表示しますか？"
+    choices:
+      - "`published` が `true` のとき"
+      - "`published` が `false`（または `nil`）のとき"
+      - いつでも表示する
+      - 一度も表示しない
+    answer: 1
+    explanation: "`unless` は `if` の反対で、条件が成り立たないときに実行します。`if !published` と同じ意味です。"
+  - question: 「税込5,000円以上なら送料無料」を正しく書いた条件はどれですか？
+    choices:
+      - "`total > 5000`"
+      - "`total >= 5000`"
+      - "`total = 5000`"
+      - "`total <= 5000`"
+    answer: 1
+    explanation: "「以上」はその値を含むので `>=` を使います。`>` だとちょうど5,000円のときに送料がかかってしまいます。`=` は比較ではなく代入です。"
+  - question: "送料のメソッドの中身が `return 0 if total >= 5000` と `550` の2行だけのとき、6,000円を渡した結果はどれですか？"
+    choices:
+      - "`0`"
+      - "`550`"
+      - "`nil`"
+      - "`6000`"
+    answer: 0
+    explanation: "6000 は 5000 以上なので、`return 0` でその場で 0 を返してメソッドが終わります。550 の行は実行されません。"

@@ -1,0 +1,25 @@
+questions:
+  - question: commit の分け方として、もっとも適切なものはどれですか？
+    choices:
+      - 1日の作業をまとめて、夕方に1回 commit する
+      - 送料の修正と、関係のない変数名の変更を1つの commit にまとめる
+      - 「かごが空のときは送料を0円にする」のように、1つの目的の変更ごとに commit する
+      - "メッセージはすべて「修正」にする"
+    answer: 2
+    explanation: 1つの目的ごとに commit を分け、何をしたかが分かるメッセージを付けると、レビューしやすく、問題が起きたときに原因を見つけたり取り消したりしやすくなります。
+  - question: "`.env` に API キーが書かれています。このファイルの扱いとして正しいものはどれですか？"
+    choices:
+      - チームで共有するために commit する
+      - "`.gitignore` に書いて、Git で記録・共有しない"
+      - commit してから、あとで削除すれば問題ない
+      - ファイル名を変えて commit する
+    answer: 1
+    explanation: "秘密の情報は Git で共有しません。一度 push すると、あとから消しても履歴に残ります。間違えて push したら、すぐにメンターに報告してキーを無効にします。"
+  - question: すでに GitHub に push して、ほかの人も使っている commit を取り消したいときに使うコマンドはどれですか？
+    choices:
+      - "`git restore`"
+      - "`git revert`"
+      - "`rm -rf .git`"
+      - "`git init`"
+    answer: 1
+    explanation: "`git revert` は、変更を打ち消す commit を新しく作ります。履歴を書き換えないので、ほかの人の作業に影響しません。`git restore` は、まだ commit していない変更を取り消すコマンドです。"

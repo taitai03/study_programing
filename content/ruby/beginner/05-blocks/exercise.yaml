@@ -1,0 +1,147 @@
+ticket: |
+  ## 背景
+  店長から「今日の売上と、商品ごとにいくつ売れたかを知りたい」と依頼がありました。
+  今日の注文データ（`today_orders`）は、注文管理システムから取り出したものです。
+
+  ## やること
+  エディタのメソッドの中身（`TODO` の部分）を書いてください。
+
+  1. `valid_orders(orders)`: キャンセル（`status` が `:cancelled`）を除いた注文の配列を返す
+  2. `order_subtotal(order)`: 1つの注文の小計（単価 × 数量 の合計、税抜）を返す
+  3. `total_sales(orders)`: 売上（キャンセルを除いた注文の小計の合計）を返す
+  4. `quantity_by_product(orders)`: キャンセルを除いた注文で、商品ごとの販売数を `{ "商品名" => 数 }` のハッシュで返す
+
+  ## 受け入れ条件
+  - [ ] キャンセルを除いた注文が 4 件（注文番号 1, 2, 4, 5）になる
+  - [ ] 注文番号1の小計が 1,690 円になる
+  - [ ] 今日の売上が 6,652 円になる
+  - [ ] 商品ごとの販売数が正しい（キャンセルされた注文の分は数えない）
+  - [ ] 注文が0件のときは、空の配列・0・空のハッシュを返す
+starter: |
+  today_orders = [
+    { id: 1, status: :paid, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 3 },
+      { product_name: "ふっくら食パン", unit_price: 248, quantity: 2 },
+    ] },
+    { id: 2, status: :shipped, items: [
+      { product_name: "竹のまな板", unit_price: 1980, quantity: 1 },
+      { product_name: "天然水 2L", unit_price: 128, quantity: 6 },
+    ] },
+    { id: 3, status: :cancelled, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 10 },
+    ] },
+    { id: 4, status: :delivered, items: [
+      { product_name: "天然水 2L", unit_price: 128, quantity: 4 },
+      { product_name: "ボールペン 3本セット", unit_price: 330, quantity: 2 },
+    ] },
+    { id: 5, status: :pending, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 1 },
+      { product_name: "ふっくら食パン", unit_price: 248, quantity: 1 },
+      { product_name: "食器用スポンジ", unit_price: 198, quantity: 2 },
+    ] },
+  ]
+
+  # キャンセルを除いた注文
+  def valid_orders(orders)
+    # TODO
+    orders
+  end
+
+  # 1つの注文の小計（税抜）
+  def order_subtotal(order)
+    # TODO
+    0
+  end
+
+  # 売上（キャンセルを除いた注文の小計の合計）
+  def total_sales(orders)
+    # TODO
+    0
+  end
+
+  # 商品ごとの販売数（キャンセルを除く）
+  def quantity_by_product(orders)
+    counts = Hash.new(0)
+    # TODO
+    counts
+  end
+
+  p valid_orders(today_orders).map { |order| order[:id] }
+  p order_subtotal(today_orders[0])
+  p total_sales(today_orders)
+  p quantity_by_product(today_orders)
+solution: |
+  today_orders = [
+    { id: 1, status: :paid, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 3 },
+      { product_name: "ふっくら食パン", unit_price: 248, quantity: 2 },
+    ] },
+    { id: 2, status: :shipped, items: [
+      { product_name: "竹のまな板", unit_price: 1980, quantity: 1 },
+      { product_name: "天然水 2L", unit_price: 128, quantity: 6 },
+    ] },
+    { id: 3, status: :cancelled, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 10 },
+    ] },
+    { id: 4, status: :delivered, items: [
+      { product_name: "天然水 2L", unit_price: 128, quantity: 4 },
+      { product_name: "ボールペン 3本セット", unit_price: 330, quantity: 2 },
+    ] },
+    { id: 5, status: :pending, items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 1 },
+      { product_name: "ふっくら食パン", unit_price: 248, quantity: 1 },
+      { product_name: "食器用スポンジ", unit_price: 198, quantity: 2 },
+    ] },
+  ]
+
+  def valid_orders(orders)
+    orders.reject { |order| order[:status] == :cancelled }
+  end
+
+  def order_subtotal(order)
+    order[:items].sum { |item| item[:unit_price] * item[:quantity] }
+  end
+
+  def total_sales(orders)
+    valid_orders(orders).sum { |order| order_subtotal(order) }
+  end
+
+  def quantity_by_product(orders)
+    counts = Hash.new(0)
+    valid_orders(orders).each do |order|
+      order[:items].each do |item|
+        counts[item[:product_name]] += item[:quantity]
+      end
+    end
+    counts
+  end
+tests:
+  - name: キャンセルを除いた注文が 4 件（注文番号 1, 2, 4, 5）になる
+    code: |
+      expect(valid_orders(today_orders).map { |order| order[:id] }).to eq([1, 2, 4, 5])
+  - name: 注文番号1の小計が 1,690 円になる
+    code: |
+      expect(order_subtotal(today_orders[0])).to eq(1690)
+  - name: 今日の売上が 6,652 円になる
+    code: |
+      expect(total_sales(today_orders)).to eq(6652)
+  - name: 商品ごとの販売数が正しい（キャンセルされた注文の分は数えない）
+    code: |
+      expect(quantity_by_product(today_orders)).to eq({
+        "国産りんごジュース 1L" => 4,
+        "ふっくら食パン" => 3,
+        "竹のまな板" => 1,
+        "天然水 2L" => 10,
+        "ボールペン 3本セット" => 2,
+        "食器用スポンジ" => 2,
+      })
+  - name: 注文が0件のときは、空の配列・0・空のハッシュを返す
+    code: |
+      expect(valid_orders([])).to eq([])
+      expect(total_sales([])).to eq(0)
+      expect(quantity_by_product([])).to eq({})
+hints:
+  - "キャンセルを除くのは `reject`（または `select`）で書けます。`:cancelled` はシンボルなので、`\"cancelled\"`（文字列）と比べないように気をつけましょう。"
+  - "小計は、明細（`order[:items]`）にブロック付きの `sum` を使うと1行で書けます。"
+  - "`total_sales` と `quantity_by_product` の中で、1で作った `valid_orders` を使いましょう。"
+  - 商品ごとの販売数は、解説の「種類ごとに数える」と「繰り返しの中で繰り返す」を組み合わせます。

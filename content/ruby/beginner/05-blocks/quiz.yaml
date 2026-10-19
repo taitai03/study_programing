@@ -1,0 +1,25 @@
+questions:
+  - question: "`[398, 248, 1980].select { |price| price >= 300 }` の結果はどれですか？"
+    choices:
+      - "`[398, 1980]`"
+      - "`[248]`"
+      - "`[true, false, true]`"
+      - "`2378`"
+    answer: 0
+    explanation: "`select` は、ブロックの結果が true になった要素だけを残した新しい配列を返します。true / false の配列を返すのは `map` です。"
+  - question: "注文の配列 `orders` から、注文番号（`:id`）だけの配列を作るのに使うメソッドはどれですか？"
+    choices:
+      - "`orders.sum { |order| order[:id] }`"
+      - "`orders.map { |order| order[:id] }`"
+      - "`orders.select { |order| order[:id] }`"
+      - "`orders.group_by { |order| order[:id] }`"
+    answer: 1
+    explanation: "`map` はブロックの結果を集めた新しい配列を返します。要素を1つずつ別の値に変換したいときに使います。"
+  - question: "`counts = Hash.new(0)` のあと、`counts[\"天然水 2L\"] += 6` を実行するとどうなりますか？"
+    choices:
+      - "`nil` に足そうとしてエラーになる"
+      - "`counts` が `{ \"天然水 2L\" => 6 }` になる"
+      - "`counts` は空のまま"
+      - "`counts` が `{ \"天然水 2L\" => 0 }` になる"
+    answer: 1
+    explanation: "`Hash.new(0)` で作ったハッシュは、まだないキーの値が 0 になります。0 + 6 で 6 が入ります。`{}` で作ったハッシュだと `nil + 6` でエラーになります。"

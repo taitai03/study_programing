@@ -1,0 +1,25 @@
+questions:
+  - question: "文字列の会員ランクで分ける `switch rank { case \"gold\": ... case \"silver\": ... }` がコンパイルエラーになりました。足りないものはどれですか？"
+    choices:
+      - 各 `case` の最後の `break`
+      - "`default:`"
+      - "`else`"
+      - "`case` の前の `if`"
+    answer: 1
+    explanation: "Swift の `switch` は、考えられるすべての値を扱う必要があります。文字列はどんな値も来る可能性があるので、`default:` が必要です。`break` は要りません。"
+  - question: "「1個以上10個以下」を表す範囲はどれですか？"
+    choices:
+      - "`1..<10`"
+      - "`1...10`"
+      - "`0...10`"
+      - "`1..<11` 以外に書き方はない"
+    answer: 1
+    explanation: "`...` は終わりの値を含み、`..<` は含みません。`1...10` と `1..<11` は同じ範囲ですが、「10個以下」という仕様には `1...10` のほうが素直に対応します。"
+  - question: "`let quantity = 3` のとき、`if quantity { ... }` と書くとどうなりますか？"
+    choices:
+      - 0以外なので条件が成り立つ
+      - "条件は `Bool` でなければいけないので、コンパイルエラーになる"
+      - 条件が成り立たない
+      - 実行時にエラーになる
+    answer: 1
+    explanation: "Swift の `if` の条件は `Bool` だけです。`quantity > 0` のように、比べた結果（`Bool`）を書きます。"

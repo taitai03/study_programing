@@ -1,0 +1,135 @@
+ticket: |
+  ## 背景
+  CS（お客様対応）チームから「注文の問い合わせを受けたときに、注文データから必要な情報をすぐ取り出せるようにしたい」と依頼がありました。
+  注文データ（`order`）は、注文管理システムから取り出したハッシュです。
+
+  ## やること
+  エディタのメソッドの中身（`TODO` の部分）を書いてください。
+
+  1. `customer_name(order)`: 注文した会員の名前を返す
+  2. `line_count(order)`: 注文明細（`items`）の行数を返す
+  3. `first_product_name(order)`: 1行目の明細の商品名を返す。明細が1行もない場合は `nil` を返す（エラーにしない）
+  4. `status_label(order)`: 注文ステータスの表示名を返す。表示名は定数 `STATUS_LABELS` にある
+  5. `coupon_label(order)`: 使ったクーポンのコードを返す。クーポンを使っていない（`nil`）場合は `"なし"` を返す
+
+  ## 受け入れ条件
+  - [ ] 会員の名前が「山田 花子」になる
+  - [ ] 明細の行数が 2 になる
+  - [ ] 1行目の商品名が「国産りんごジュース 1L」になり、明細がない注文では `nil` になる
+  - [ ] ステータスの表示名が「支払済」になり、ほかのステータスも正しい表示名になる
+  - [ ] クーポンの表示が「SPRING500」になり、クーポンを使っていない注文では「なし」になる
+starter: |
+  STATUS_LABELS = {
+    pending: "受付",
+    paid: "支払済",
+    shipped: "発送済",
+    delivered: "完了",
+    cancelled: "キャンセル",
+  }
+
+  # 注文管理システムから取り出した注文データ
+  order = {
+    id: 1024,
+    status: :paid,
+    customer: { name: "山田 花子", rank: :gold },
+    items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 3 },
+      { product_name: "竹のまな板", unit_price: 1980, quantity: 1 },
+    ],
+    coupon: "SPRING500",
+  }
+
+  # 注文した会員の名前
+  def customer_name(order)
+    # TODO
+  end
+
+  # 注文明細の行数
+  def line_count(order)
+    # TODO
+  end
+
+  # 1行目の明細の商品名（明細がなければ nil）
+  def first_product_name(order)
+    # TODO
+  end
+
+  # 注文ステータスの表示名
+  def status_label(order)
+    # TODO: STATUS_LABELS を使う
+  end
+
+  # 使ったクーポンのコード（なければ "なし"）
+  def coupon_label(order)
+    # TODO
+  end
+
+  p customer_name(order)
+  p line_count(order)
+  p first_product_name(order)
+  p status_label(order)
+  p coupon_label(order)
+solution: |
+  STATUS_LABELS = {
+    pending: "受付",
+    paid: "支払済",
+    shipped: "発送済",
+    delivered: "完了",
+    cancelled: "キャンセル",
+  }
+
+  order = {
+    id: 1024,
+    status: :paid,
+    customer: { name: "山田 花子", rank: :gold },
+    items: [
+      { product_name: "国産りんごジュース 1L", unit_price: 398, quantity: 3 },
+      { product_name: "竹のまな板", unit_price: 1980, quantity: 1 },
+    ],
+    coupon: "SPRING500",
+  }
+
+  def customer_name(order)
+    order[:customer][:name]
+  end
+
+  def line_count(order)
+    order[:items].size
+  end
+
+  def first_product_name(order)
+    order.dig(:items, 0, :product_name)
+  end
+
+  def status_label(order)
+    STATUS_LABELS[order[:status]]
+  end
+
+  def coupon_label(order)
+    order[:coupon] || "なし"
+  end
+tests:
+  - name: 会員の名前が「山田 花子」になる
+    code: |
+      expect(customer_name(order)).to eq("山田 花子")
+  - name: 明細の行数が 2 になる
+    code: |
+      expect(line_count(order)).to eq(2)
+  - name: 1行目の商品名が取り出せ、明細がない注文では nil になる
+    code: |
+      expect(first_product_name(order)).to eq("国産りんごジュース 1L")
+      expect(first_product_name({ id: 1, status: :pending, items: [] })).to eq(nil)
+  - name: ステータスの表示名が正しい
+    code: |
+      expect(status_label(order)).to eq("支払済")
+      expect(status_label({ status: :shipped })).to eq("発送済")
+      expect(status_label({ status: :cancelled })).to eq("キャンセル")
+  - name: クーポンのコードが表示され、使っていない注文では「なし」になる
+    code: |
+      expect(coupon_label(order)).to eq("SPRING500")
+      expect(coupon_label({ id: 2, coupon: nil })).to eq("なし")
+hints:
+  - "ハッシュの中のハッシュは、`order[:customer]` で取り出したものに、さらに `[:name]` を付けます。"
+  - "「明細がないときに nil」は、解説の `dig` を使うとエラーにならずに書けます。"
+  - "`STATUS_LABELS` は、ステータスのシンボルをキーにした対応表です。`STATUS_LABELS[:paid]` は `\"支払済\"` になります。"
+  - "「nil なら代わりの値」は `||` で書けます。"

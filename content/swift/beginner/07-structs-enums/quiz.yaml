@@ -1,0 +1,25 @@
+questions:
+  - question: "`Cart` が struct のとき、`var cartB = cartA` のあと `cartB.add(juice)` を実行すると、`cartA` はどうなりますか？"
+    choices:
+      - "`cartA` にも juice が入る"
+      - "`cartA` は変わらない"
+      - "`cartA` は空になる"
+      - コンパイルエラーになる
+    answer: 1
+    explanation: "struct は値型なので、代入するとコピーが作られます。cartB を変えても cartA は変わりません。class（参照型）なら、両方が同じものを指すので cartA も変わります。"
+  - question: 注文ステータスを文字列（`"paid"` など）ではなく enum で表すいちばんの利点はどれですか？
+    choices:
+      - 実行が速くなるから
+      - ない選択肢やタイプミスを書くとコンパイルエラーになり、実行する前に気づけるから
+      - 画面に表示する文字が自動で日本語になるから
+      - "enum は `switch` で使えないから"
+    answer: 1
+    explanation: "文字列だと `\"payed\"` のようなタイプミスに気づけません。enum なら、ない選択肢はコンパイルエラーになります。switch ですべての case を書けば、選択肢を増やしたときの書き忘れも教えてくれます。"
+  - question: "struct の中で自分のプロパティを書き換えるメソッドに付けるキーワードはどれですか？"
+    choices:
+      - "`var`"
+      - "`mutating`"
+      - "`static`"
+      - "`override`"
+    answer: 1
+    explanation: "struct のメソッドが自分のプロパティを変えるときは `mutating` を付けます。また、`let` で作ったインスタンスでは `mutating` のメソッドは呼べません。"
