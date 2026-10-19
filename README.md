@@ -4,3 +4,4 @@
 
 - 要件定義: [docs/requirements.md](docs/requirements.md)
 - 全体設計: [docs/architecture.md](docs/architecture.md)
+- カリキュラム案: [docs/curriculum.md](docs/curriculum.md)
