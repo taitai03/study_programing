@@ -1,0 +1,4 @@
+# scripts/templates.ts が使う設定
+course: common/prep
+test: npm test
+ignore: [node_modules/]

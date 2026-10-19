@@ -1,0 +1,48 @@
+<% content_for :title, "ダッシュボード" %>
+<h1>ダッシュボード</h1>
+
+<div class="cards">
+  <div class="card">
+    <h2>今日の売上</h2>
+    <p class="big"><%= yen(@summary.today[:sales]) %></p>
+    <p class="muted"><%= @summary.today[:count] %>件</p>
+  </div>
+  <div class="card">
+    <h2>今月の売上</h2>
+    <p class="big"><%= yen(@summary.this_month[:sales]) %></p>
+    <p class="muted"><%= @summary.this_month[:count] %>件</p>
+  </div>
+</div>
+
+<section>
+  <h2>日ごとの売上（キャンセルを除く）</h2>
+  <table class="table">
+    <thead><tr><th>日付</th><th class="num">売上</th><th class="num">件数</th></tr></thead>
+    <tbody>
+      <% @summary.daily.each do |day| %>
+        <tr>
+          <td><%= day[:day].strftime("%Y/%m/%d") %></td>
+          <td class="num"><%= yen(day[:sales]) %></td>
+          <td class="num"><%= day[:count] %>件</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>今月よく売れた商品</h2>
+  <table class="table">
+    <thead><tr><th>商品</th><th class="num">数量</th></tr></thead>
+    <tbody>
+      <% @summary.top_products.each do |product| %>
+        <tr><td><%= product[:name] %></td><td class="num"><%= product[:quantity] %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>最近の注文</h2>
+  <%= render "admin/orders/table", orders: @recent_orders %>
+</section>

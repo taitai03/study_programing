@@ -31,6 +31,10 @@
   title: 開発の準備
   description: ターミナル、Git、PR、デバッグなど、チームで開発するための道具の使い方と、自分で調べて解決する方法を学ぶ。
   mode: pull_request
+  modeLabel: クイズとPRの練習
+  templateRepo: taitai03/practice-prep
+  protectedPaths:
+    - test/tasks/
 - id: typescript/intermediate
   language: typescript
   languageLabel: JavaScript / TypeScript
@@ -39,6 +43,13 @@
   title: JavaScript / TypeScript 中級
   description: 既存のNext.jsアプリに、画面・API・DBにまたがる機能をチケットどおりに追加できるようになる。
   mode: pull_request
+  templateRepo: taitai03/practice-ts-intermediate
+  protectedPaths:
+    - "**/*.task.test.ts"
+    - "**/*.task.test.tsx"
+    - .task/
+    - src/test/
+    - vitest.config.mts
 - id: ruby/intermediate
   language: ruby
   languageLabel: Ruby / Rails
@@ -47,6 +58,14 @@
   title: Ruby / Rails 中級
   description: 既存のRailsアプリに、画面・DBにまたがる機能をチケットどおりに追加できるようになる。
   mode: pull_request
+  templateRepo: taitai03/practice-rails-intermediate
+  protectedPaths:
+    - spec/tasks/
+    - spec/support/
+    - spec/rails_helper.rb
+    - spec/spec_helper.rb
+    - .rspec
+    - .task/
 - id: swift/intermediate
   language: swift
   languageLabel: Swift
@@ -55,6 +74,11 @@
   title: Swift 中級
   description: 既存のiOSアプリに、APIからデータを取得して表示する機能をチケットどおりに追加できるようになる。
   mode: pull_request
+  templateRepo: taitai03/practice-swift-intermediate
+  protectedPaths:
+    - SakuraMartKit/Tests/SakuraMartKitTests/Tasks/
+    - SakuraMartKit/Package.swift
+    - .task/
 - id: typescript/advanced
   language: typescript
   languageLabel: JavaScript / TypeScript

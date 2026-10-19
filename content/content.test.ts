@@ -5,6 +5,8 @@
 // - 最初のコード（starter）のままでは合格しない
 // - クイズの正解の番号が選択肢の範囲内にある
 // - 演習のないレッスンにはクイズがある（クイズだけで完了できる）
+// - PRで解く課題（task.yaml）には、テンプレート（templates/<リポジトリ名>/tasks/<スラッグ>/）がある
+//   （開始ブランチでテストが失敗し、模範解答で通ることは scripts/templates.ts verify で確かめる）
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -12,7 +14,13 @@ import path from "node:path";
 import { promisify } from "node:util";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
-import { getCourses, getLesson, lessonDir, readIfExists } from "@/lib/content/loader";
+import {
+  getCourses,
+  getLesson,
+  lessonDir,
+  readIfExists,
+  templateRepoName,
+} from "@/lib/content/loader";
 import { getPlaygroundSource } from "@/lib/content/playground";
 import type { Course } from "@/lib/content/schema";
 import { buildProgram, runProgram } from "@/lib/runner/harness";
@@ -117,6 +125,16 @@ describe.each(lessons)("%s", (lessonId, language) => {
       const starter = await judge(language, exercise.starter, exercise.tests);
       const starterHasTypeErrors = typecheck && typeErrors(exercise.starter).length > 0;
       expect(starter.passed && !starterHasTypeErrors).toBe(false);
+    } else if (lesson?.task) {
+      // PRで解く課題は、コースのテンプレートに課題の準備（開始ブランチの差分と模範解答）がある
+      const course = courses.find((c) => c.id === lesson.courseId);
+      const repo = course && templateRepoName(course);
+      expect(repo, "courses.yaml に templateRepo がありません").toBeTruthy();
+      const taskDir = path.join(process.cwd(), "templates", repo ?? "", "tasks", lesson.slug);
+      await expect(fs.stat(path.join(taskDir, "start"))).resolves.toBeTruthy();
+      await expect(fs.stat(path.join(taskDir, "solution"))).resolves.toBeTruthy();
+      expect(lesson.task.ticket).toContain("## 受け入れ条件");
+      expect(lesson.quiz).not.toBeNull();
     } else {
       // 演習がないレッスンは、クイズに合格すれば完了になる
       expect(lesson?.quiz).not.toBeNull();
@@ -144,4 +162,17 @@ describe.each(lessons)("%s", (lessonId, language) => {
     },
     120_000,
   );
+});
+
+describe("templates/", () => {
+  it("テンプレートの課題には、対応するレッスンの task.yaml がある", async () => {
+    for (const course of courses.filter((c) => c.templateRepo)) {
+      const tasksDir = path.join(process.cwd(), "templates", templateRepoName(course) ?? "", "tasks");
+      const slugs = await fs.readdir(tasksDir).catch(() => []);
+      for (const slug of slugs) {
+        const lesson = await getLesson(`${course.id}/${slug}`);
+        expect(lesson?.task, `${course.id}/${slug} に task.yaml がありません`).toBeTruthy();
+      }
+    }
+  });
 });

@@ -1,0 +1,25 @@
+questions:
+  - question: Next.js の App Router で、`GET /api/orders` を受け付けるコードはどこに書きますか？
+    choices:
+      - "`src/app/api/orders/page.tsx` の default export"
+      - "`src/app/api/orders/route.ts` の `GET` 関数"
+      - "`src/pages/api/orders.ts`"
+      - "`src/app/orders/api.ts`"
+    answer: 1
+    explanation: Route Handler は `route.ts` に、HTTP メソッド名の関数を export して作ります。フォルダ構成がURLになります。
+  - question: "`to=2026-04-15`（日本時間、その日を含む）の条件として、最も適切なものはどれですか？"
+    choices:
+      - "`createdAt <= 2026-04-15T00:00:00+09:00`"
+      - "`createdAt < 2026-04-16T00:00:00+09:00`"
+      - "`createdAt < 2026-04-15T00:00:00Z`"
+      - "`createdAt = 2026-04-15`"
+    answer: 1
+    explanation: 4月15日の終わりまで含めるには「翌日の0時より前」と書きます。`<= 4月15日 0:00` では、15日の注文がほぼすべて漏れます。
+  - question: "`new Date(\"2026-02-30T00:00:00+09:00\")` はどうなりますか？"
+    choices:
+      - エラーが投げられる
+      - Invalid Date になる
+      - 3月2日の日時になる
+      - 2月28日の日時になる
+    answer: 2
+    explanation: JavaScript の Date は、存在しない日付を黙って繰り上げます。入力の日付は、変換したあとに元の日付と同じかを確かめる必要があります。

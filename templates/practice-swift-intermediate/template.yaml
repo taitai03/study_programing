@@ -1,0 +1,7 @@
+# scripts/templates.ts が使う設定
+course: swift/intermediate
+# swift があればそのまま、なければ Docker の swift:6.2 イメージでテストする
+test: |
+  run='swift test --package-path SakuraMartKit && (test ! -f .task/check.sh || bash .task/check.sh)'
+  if command -v swift > /dev/null; then bash -c "$run"; else docker run --rm -v "$PWD":/w -w /w swift:6.2 bash -c "$run"; fi
+ignore: [SakuraMartKit/.build/, SakuraMartKit/.swiftpm/, .build/]

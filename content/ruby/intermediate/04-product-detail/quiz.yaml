@@ -1,0 +1,25 @@
+questions:
+  - question: Rails の MVC で、「累計の販売数を計算する」処理を書く場所として最も適切なものはどれですか？
+    choices:
+      - ビュー（ERB）
+      - モデル
+      - ルーティング
+      - レイアウト
+    answer: 1
+    explanation: 業務の計算はモデルに書きます。ほかの画面やAPIでも使え、テストもしやすくなります。ビューは表示に専念させます。
+  - question: "`resources :products, only: %i[index show]` を `namespace :admin` の中に書いたとき、`GET /admin/products/12` はどのアクションに届きますか？"
+    choices:
+      - "`ProductsController#index`"
+      - "`Admin::ProductsController#show`"
+      - "`Admin::ProductsController#index`"
+      - "`Admin::ProductsController#edit`"
+    answer: 1
+    explanation: namespace :admin なので Admin::ProductsController に、ID 付きの GET は show アクションに届きます。`bin/rails routes` で確かめられます。
+  - question: 画面がエラーになったとき、まず開発用サーバーのログで確かめるとよいことはどれですか？
+    choices:
+      - CSS のクラス名
+      - どのコントローラーのアクションが呼ばれ、どんなパラメーターと SQL で、どこでエラーになったか
+      - Gemfile のバージョン
+      - ブラウザの種類
+    answer: 1
+    explanation: ログには、呼ばれたアクション、パラメーター、実行された SQL、結果のステータス、エラーの場所が出ます。どこまで処理が進んだかを確かめる手がかりになります。

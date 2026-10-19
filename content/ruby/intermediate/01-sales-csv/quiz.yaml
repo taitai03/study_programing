@@ -1,0 +1,25 @@
+questions:
+  - question: "`lines.group_by { |l| [l.month, l.product_id] }` の結果はどんな形になりますか？"
+    choices:
+      - 月と商品IDの配列の配列
+      - "[月, 商品ID] をキー、その明細の配列を値とするハッシュ"
+      - 明細の数
+      - 月ごとの合計金額
+    answer: 1
+    explanation: group_by はブロックの値をキーにしたハッシュを返します。値は、そのキーになった要素の配列です。
+  - question: 注文明細CSVの数量の列に「いち」と書かれていたとき、`"いち".to_i` はどうなりますか？
+    choices:
+      - ArgumentError になる
+      - 1 になる
+      - 0 になり、エラーにならない
+      - nil になる
+    answer: 2
+    explanation: to_i は変換できない文字列を黙って 0 にします。壊れたデータに気づくには、`Integer("いち", 10)` を使って ArgumentError を受け止めます。
+  - question: Ruby 3.4 で CSV ライブラリを使うときに必要なことはどれですか？
+    choices:
+      - 何もしなくてよい（標準で入っている）
+      - Gemfile に `gem "csv"` を書いて bundle install し、Gemfile と Gemfile.lock を commit する
+      - CSV を自分で実装する
+      - Rails をアップデートする
+    answer: 1
+    explanation: CSV は Ruby 3.4 から bundled gem になり、Bundler を使うアプリでは Gemfile に書く必要があります。Gemfile.lock も commit して、ほかの環境でも同じバージョンを使います。

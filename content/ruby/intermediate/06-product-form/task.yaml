@@ -1,0 +1,41 @@
+ticket: |
+  ## 背景
+
+  新しい商品の登録や価格の変更は、いまは開発者が rails console で行っています。店舗スタッフから「管理画面から自分で商品を登録・編集したい」「販売をやめた商品を非公開にしたい」と要望が来ました。
+
+  ## やること
+
+  管理画面に、商品の登録・編集・非公開化を追加する。
+
+  | 操作 | URL | 成功したとき | 入力に誤りがあるとき |
+  | --- | --- | --- | --- |
+  | 登録画面 | `GET /admin/products/new` | | |
+  | 登録 | `POST /admin/products` | 商品一覧に戻り「「商品名」を登録しました」と表示 | 422 で、フォームとエラーメッセージを表示（入力した値は残す） |
+  | 編集画面 | `GET /admin/products/:id/edit` | | |
+  | 更新 | `PATCH /admin/products/:id` | 商品一覧に戻り「「商品名」を更新しました」と表示 | 422 で、フォームとエラーメッセージを表示 |
+  | 非公開化 | `PATCH /admin/products/:id/unpublish` | 商品一覧に戻り「「商品名」を非公開にしました」と表示 | |
+
+  - フォームの項目: 商品名、説明、価格（税抜）、在庫、カテゴリ、公開（チェックボックス）。入力欄の `name` は `product[name]` のような形
+  - フォームから受け付ける項目は、上の項目だけにする（Strong Parameters）
+  - 商品一覧に「商品を登録する」リンクと、商品ごとの「編集」リンク、公開中の商品には「非公開にする」ボタンを置く
+  - ログインしていなければ、ほかの管理画面と同じくログイン画面に移動する
+
+  ## 受け入れ条件
+
+  - [ ] 商品を登録・編集・非公開化できる（画面で確認）
+  - [ ] 入力に誤りがあれば、422 でエラーメッセージを表示し、入力した値を残す
+  - [ ] 許可していない項目（`id` など）は受け付けない
+  - [ ] 登録と編集で同じフォーム（パーシャル）を使っている
+  - [ ] 既存のテストがすべて通る
+
+  ## 参考
+
+  - テスト: `spec/tasks/product_form_task_spec.rb`
+  - Rails ガイド: フォームヘルパー https://railsguides.jp/form_helpers.html 、Strong Parameters https://railsguides.jp/action_controller_overview.html#strong-parameters
+hints:
+  - |
+    `bin/rails routes | grep product` でURLとヘルパー名を確かめながら進めましょう。`resources :products` の `only` に `new create edit update` を足し、`member do patch :unpublish end` を追加します。
+  - |
+    失敗したときは `render :new, status: :unprocessable_content` で、エラーを持った `@product` のままフォームを表示し直します。リダイレクトすると、入力した値とエラーが消えてしまいます。
+  - |
+    フォームは `app/views/admin/products/_form.html.erb` に `form_with model: [:admin, product]` で書き、`new.html.erb` と `edit.html.erb` から `render "form", product: @product` で使います。

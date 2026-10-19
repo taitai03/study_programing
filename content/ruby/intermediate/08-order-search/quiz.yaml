@@ -1,0 +1,25 @@
+questions:
+  - question: "`orders = Order.recent; orders = orders.where(status: \"paid\") if status.present?` のように条件をつないでいくとき、SQL が実行されるのはいつですか？"
+    choices:
+      - "`Order.recent` を書いた時点"
+      - "`where` をつなぐたび"
+      - 結果を使う（each、map、件数を数えるなど）時点
+      - アプリを起動した時点
+    answer: 2
+    explanation: ActiveRecord の relation は遅延評価です。条件を組み立てる途中では SQL は実行されず、データが必要になったときに1回だけ実行されます。
+  - question: 'JSON API で `render json: @orders`（モデルをそのまま返す）を避けたほうがよい理由はどれですか？'
+    choices:
+      - JSON に変換できないから
+      - 内部の項目や、今後追加される項目まで外に出てしまい、APIの形も意図せず変わるから
+      - 処理が遅くなるから
+      - 日本語が使えないから
+    answer: 1
+    explanation: 返す項目を明示しておけば、テーブルに列を足してもAPIの形は変わらず、見せたくない項目が漏れることもありません。
+  - question: 一覧の2ページ目へのリンクを作るときに、気を付けることはどれですか？
+    choices:
+      - ページ番号だけをクエリに付ける
+      - いまの検索条件（期間やステータス）もクエリに付けておく
+      - 1ページ目と同じURLにする
+      - POST で送る
+    answer: 1
+    explanation: ページ番号だけにすると、2ページ目に進んだときに絞り込みの条件が消えてしまいます。いまの条件を保ったままページだけを変えます。

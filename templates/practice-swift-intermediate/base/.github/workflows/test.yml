@@ -1,0 +1,23 @@
+# 課題の判定に使うテスト。start/ で始まるブランチ（課題の開始ブランチ）に向けたPRで実行する。
+# SakuraMartKit（ロジック）を Linux の Swift でテストする。画面（SakuraMart/）は判定しない。
+# このファイルと、課題で用意したテスト（Tests/SakuraMartKitTests/Tasks/）を変更したPRは判定の対象外になる
+name: test
+
+on:
+  pull_request:
+    branches: ["start/**"]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: テスト
+        run: swift test --package-path SakuraMartKit
+      - name: 課題ごとの追加のチェック
+        if: hashFiles('.task/check.sh') != ''
+        run: bash .task/check.sh

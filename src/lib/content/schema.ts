@@ -14,6 +14,18 @@ export const courseSchema = z.object({
   description: z.string(),
   /** 学び方。browser: ブラウザ内で実行、playground: Xcode Playground、pull_request: ローカルで解いてPR */
   mode: z.enum(["browser", "playground", "pull_request"]),
+  /** ダッシュボードに表示する学び方。省略すると mode から決める */
+  modeLabel: z.string().optional(),
+  /**
+   * PRで解く課題のテンプレートリポジトリ（例: taitai03/practice-ts-intermediate）。
+   * 受講者はここから同じ名前のリポジトリを自分のアカウントに作る
+   */
+  templateRepo: z
+    .string()
+    .regex(/^[\w.-]+\/[\w.-]+$/)
+    .optional(),
+  /** コースのすべてのPR課題で、受講者が変更してはいけないファイル（テストの設定など）。glob で書く */
+  protectedPaths: z.array(z.string()).default([]),
 });
 export type Course = z.infer<typeof courseSchema>;
 
@@ -42,6 +54,23 @@ export const exerciseSchema = z.object({
   typecheck: z.boolean().default(true),
 });
 export type Exercise = z.infer<typeof exerciseSchema>;
+
+/**
+ * ローカルで解いてPRを出す課題（task.yaml）。
+ * 開始ブランチは start/<レッスンのスラッグ>（例: start/07-order-filter）。
+ * テンプレートリポジトリ側の準備（コード、テスト）は templates/<リポジトリ名>/tasks/<スラッグ>/ に置く
+ */
+export const taskSchema = z.object({
+  /** 業務チケット形式の課題文（Markdown）。開始ブランチの TASK.md にも同じ内容を入れる */
+  ticket: z.string(),
+  /**
+   * 受講者が変更してはいけないファイル（課題で用意したテストなど）。glob で書く。
+   * これらと .github/ を変更したPRは判定対象外にする
+   */
+  protectedPaths: z.array(z.string()).default([]),
+  hints: z.array(z.string()).default([]),
+});
+export type Task = z.infer<typeof taskSchema>;
 
 export const quizSchema = z.object({
   questions: z

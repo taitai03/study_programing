@@ -1,0 +1,28 @@
+<% content_for :title, "備品の登録" %>
+<p><%= link_to "← 備品の一覧", admin_office_items_path, class: "muted" %></p>
+<h1>備品の登録</h1>
+
+<%= form_with model: [ :admin, @office_item ], class: "form" do |form| %>
+  <% if @office_item.errors.any? %>
+    <div class="errors" role="alert">
+      <ul>
+        <% @office_item.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, required: true %>
+  </div>
+  <div class="field">
+    <%= form.label :management_number %>
+    <%= form.text_field :management_number, required: true, placeholder: "EQ-0001" %>
+  </div>
+  <div class="field">
+    <%= form.label :note %>
+    <%= form.text_area :note, rows: 3 %>
+  </div>
+  <%= form.submit "登録する", class: "button" %>
+<% end %>

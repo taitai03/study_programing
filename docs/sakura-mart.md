@@ -24,7 +24,7 @@
 | 構成 | Next.js（App Router）、TypeScript、Drizzle、Auth.js（スタッフのログイン）、shadcn/ui ＋ Tailwind CSS | Rails 8、Hotwire（ERB）、Rails標準の認証、RSpec | SwiftUI、iOS 17以上、ロジックは Swift Package（`SakuraMartKit`） |
 | DB | 中級: SQLite／上級: PostgreSQL | 中級: SQLite／上級: PostgreSQL | なし（端末内の保存のみ） |
 | 外部API | 決済・配送のAPIはモック | 決済・配送のAPIはモック | 普段はアプリ内のモックAPI。設定でNext.js版のAPIにも接続できる |
-| テスト | Vitest、React Testing Library | RSpec（モデル、リクエスト、システム） | Swift Testing（`SakuraMartKit` をLinuxでテスト） |
+| テスト | Vitest、React Testing Library | RSpec（モデル、リクエスト）、FactoryBot | Swift Testing（`SakuraMartKit` をLinuxでテスト。Actions は `swift:6.2` のコンテナで実行） |
 
 - 上級ではPostgreSQLを Docker Compose で起動する。ロックやインデックスなど、本番と同じ動きが必要な課題があるため
 - iOS版のViewModelはSwift Packageに置き、SwiftUIとCombineに依存させない。Linuxでテストするため（Observationフレームワークを使う場合は、Linuxでビルドできるか実装前に確認する）
@@ -195,6 +195,7 @@ git push -u origin work/07-order-filter
 ## 8. 決定事項
 
 - テンプレートリポジトリとGitHub Appは **[@taitai03](https://github.com/taitai03) の個人アカウント** に置く
+  - テンプレートリポジトリのソースは、このリポジトリの `templates/` を正とし、スクリプトで公開する（[templates/README.md](../templates/README.md)）。6.2 の「差分を `tasks/<課題>/` に置き、スクリプトで開始ブランチを作り直す」はこの形で実装した
   - テンプレートは受講者がコピーできるように **public** にする。模範解答は入れない
   - 名前は `practice-<コース>` で揃える（例: `taitai03/practice-ts-intermediate`、`taitai03/practice-rails-advanced`）
 - Next.js版のスタッフのログインは **Auth.js** を使う（現場で使われるライブラリに慣れるため）

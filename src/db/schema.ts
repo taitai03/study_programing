@@ -1,6 +1,7 @@
 import {
   boolean,
   index,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
@@ -8,6 +9,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ---------------------------------------------------------------------------
@@ -134,7 +136,34 @@ export const submissions = pgTable(
     kind: submissionKindEnum("kind").notNull(),
     status: submissionStatusEnum("status").notNull(),
     summary: jsonb("summary"),
+    /** PRの提出だけで使う。PRの1コミット（head_sha）ごとに1行 */
+    repoFullName: text("repo_full_name"),
+    prNumber: integer("pr_number"),
+    headSha: text("head_sha"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("submissions_user_lesson_idx").on(t.userId, t.lessonId),
+    // Webhookが重複して届いても、同じコミットの提出は1行にする
+    uniqueIndex("submissions_pr_head_idx").on(t.repoFullName, t.prNumber, t.headSha),
+  ],
+);
+
+/** 受講者のコースとGitHubリポジトリ（テンプレートから作った課題リポジトリ）の紐付け */
+export const courseRepos = pgTable(
+  "course_repos",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    courseId: text("course_id").notNull(),
+    /** 例: taitai03/practice-ts-intermediate */
+    repoFullName: text("repo_full_name").notNull().unique(),
+    installationId: integer("installation_id").notNull(),
+    isPrivate: boolean("is_private").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (t) => [index("submissions_user_lesson_idx").on(t.userId, t.lessonId)],
+  (t) => [uniqueIndex("course_repos_user_course_idx").on(t.userId, t.courseId)],
 );

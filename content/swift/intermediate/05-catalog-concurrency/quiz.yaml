@@ -1,0 +1,25 @@
+questions:
+  - question: 0.3秒かかる通信Aと通信Bを `async let` で始めてから待つと、全体でおよそ何秒かかりますか？
+    choices:
+      - 0.15秒
+      - 0.3秒
+      - 0.6秒
+      - 0.9秒
+    answer: 1
+    explanation: async let は2つの処理を同時に始めるので、全体の時間は遅いほう（0.3秒）になります。順番に await すると0.6秒です。
+  - question: actor の説明として正しいものはどれですか？
+    choices:
+      - 中の変数に、同時に1つの処理しか触れないようにして、データ競合を防ぐ型
+      - 値型で、代入するとコピーされる
+      - 画面を作るための型
+      - async の関数を同期で呼べるようにする型
+    answer: 0
+    explanation: actor は、中の状態に同時に複数の処理が触れないようにします。外からメソッドを呼ぶときは await を付けます。
+  - question: "`catch { return nil }` のように、すべてのエラーを握りつぶすと、どんな問題がありますか？"
+    choices:
+      - 問題はない
+      - キャンセル（CancellationError）まで消えてしまい、キャンセルされたのに処理が続く
+      - コンパイルエラーになる
+      - 処理が遅くなる
+    answer: 1
+    explanation: キャンセルは CancellationError として伝わります。握りつぶすと、画面を閉じても処理が続き、途中の結果が使われてしまいます。CancellationError は投げ直します。

@@ -1,0 +1,59 @@
+ticket: |
+  ## 背景
+
+  決済サービス「さくらペイ」とつなぐ処理を作っています。いまはAPIのレスポンスを `any` のまま使っていて、「成功なのに `error.code` を読もうとして落ちる」不具合が先月起きました。レスポンスに型を付けて、成功・失敗・保留で処理を分けられるようにします。
+
+  ## やること
+
+  `src/lib/payment/payment.ts` を実装する。
+
+  ### さくらペイのレスポンス（JSON）
+
+  ```json
+  { "status": "succeeded", "paymentId": "pay_001", "amount": 2750, "paidAt": "2026-04-15T03:00:00Z" }
+  { "status": "failed", "paymentId": "pay_002", "error": { "code": "card_declined", "message": "Your card was declined." } }
+  { "status": "pending", "paymentId": "pay_003", "redirectUrl": "https://pay.example.com/3ds/abc" }
+  ```
+
+  - `pending` は、カード会社の認証（3Dセキュア）待ち。会員に `redirectUrl` を開いてもらう
+  - `error.code` は今後も増える可能性がある
+
+  ### 実装するもの
+
+  | 名前 | 内容 |
+  | --- | --- |
+  | `PaymentResult` | 3つのレスポンスを表す **判別可能なユニオン型**（`status` で区別）。成功の `paidAt` は `Date` にする |
+  | `parsePaymentResponse(json: unknown)` | レスポンスを確かめて `PaymentResult` にする。形が仕様と違えば `PaymentResponseError` を投げる |
+  | `safeParsePaymentResponse(json: unknown)` | 例外を投げない版。`Result<PaymentResult, string>` を返す（失敗のときはエラーメッセージ） |
+  | `paymentMessage(result)` | 会員に表示するメッセージを返す（下の表） |
+
+  | 結果 | メッセージ |
+  | --- | --- |
+  | 成功 | `お支払いが完了しました（12,800円）`（金額は3桁区切り） |
+  | 失敗: `card_declined` | `カードが利用できませんでした。別のカードをお試しください` |
+  | 失敗: `insufficient_funds` | `残高が不足しています` |
+  | 失敗: `expired_card` | `カードの有効期限が切れています` |
+  | 失敗: そのほかのコード | `お支払いに失敗しました。時間をおいてお試しください` |
+  | 保留 | `カード会社の認証画面で手続きを完了してください` |
+
+  ## 受け入れ条件
+
+  - [ ] `PaymentResult` の `status` で絞り込むと、それぞれの形の項目を型エラーなしで使える（型のテストが通る）
+  - [ ] 3種類のレスポンスを正しく変換できる
+  - [ ] 形が違うレスポンス（`null`、知らない `status`、項目の欠け、型の違い、日時でない `paidAt`）は `PaymentResponseError` になる
+  - [ ] `safeParsePaymentResponse` は例外を投げずに結果を返す
+  - [ ] `paymentMessage` が表のとおりのメッセージを返す
+  - [ ] `any` と `as` を使わずに書く（`as const` は可）
+  - [ ] 既存のテストと型チェックがすべて通る
+
+  ## 参考
+
+  - テスト: `src/lib/payment/payment.task.test.ts`。型のテスト（`expectTypeOf`）は `npm run typecheck` で確かめます
+  - TypeScript ハンドブック: Narrowing https://www.typescriptlang.org/docs/handbook/2/narrowing.html
+hints:
+  - |
+    まず `PaymentResult` の型を書いて `npm run typecheck` を実行しましょう。テストの中の `r.paidAt` などの型エラーが消えれば、型の形は合っています。
+  - |
+    `unknown` の値は、`typeof json === "object" && json !== null` で絞り込むと `object` になります。プロパティを読むには、`value is Record<string, unknown>` を返す型ガード関数を作るのが便利です。
+  - |
+    `switch (json.status)` で分けて、それぞれの `case` の中で必要な項目を確かめてから、新しいオブジェクトを作って返します。`default` では `PaymentResponseError` を投げます。

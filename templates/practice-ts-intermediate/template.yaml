@@ -1,0 +1,9 @@
+# scripts/templates.ts が使う設定
+course: typescript/intermediate
+setup: npm ci --no-audit --no-fund
+test: npm run typecheck && npm test && (test ! -f .task/check.sh || bash .task/check.sh)
+# package.json と package-lock.json が base と同じなら、npm ci の結果を使い回す
+reuse:
+  when: [package.json, package-lock.json]
+  dirs: [node_modules]
+ignore: [node_modules/, .next/, data/dev.db, data/dev.db-shm, data/dev.db-wal, .env.local, next-env.d.ts, tsconfig.tsbuildinfo]

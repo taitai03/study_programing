@@ -1,0 +1,25 @@
+questions:
+  - question: 支払い方法ごとの処理を、`switch` で分ける代わりにプロトコルで表す利点はどれですか？
+    choices:
+      - 処理が速くなる
+      - 1つの支払い方法のことが1つの型にまとまり、新しい支払い方法は型を足すだけで済む
+      - コードが必ず短くなる
+      - エラーが起きなくなる
+    answer: 1
+    explanation: switch で分けると、支払い方法が増えるたびにあちこちを直す必要があります。プロトコルなら、型を1つ足すだけで、使う側はそのまま使えます。
+  - question: プロトコルの拡張（extension）にメソッドを書くと、どうなりますか？
+    choices:
+      - そのプロトコルに準拠するすべての型で、そのメソッドが使える
+      - プロトコルの要件が1つ増え、すべての型で実装が必要になる
+      - そのプロトコルに準拠できなくなる
+      - class でしか使えない
+    answer: 0
+    explanation: プロトコルの拡張に書いたメソッドは、準拠するすべての型で使えます。共通の処理を1か所に書けます。
+  - question: "`let methods: [any PaymentMethod]` の `any PaymentMethod` は何を表していますか？"
+    choices:
+      - PaymentMethod という名前の class
+      - PaymentMethod に準拠している、何らかの型の値
+      - 何でも入る型（Any）
+      - PaymentMethod の配列
+    answer: 1
+    explanation: "`any PaymentMethod` は、PaymentMethod に準拠していればどの型の値でも入る、という意味です。具体的な型を知らなくても、プロトコルの要件を使えます。"

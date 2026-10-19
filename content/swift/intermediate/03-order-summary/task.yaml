@@ -1,0 +1,53 @@
+ticket: |
+  ## 背景
+
+  アプリのマイページに「お買い物のまとめ」を表示します。会員の注文履歴（`[PastOrder]`）から、月ごとの合計や、よく買う商品を集計するロジックを作ってください。
+
+  ## やること
+
+  `SakuraMartKit/Sources/SakuraMartKit/OrderSummary.swift` を作り、次を実装する。注文のモデル（`PastOrder`、`PastOrderItem`、`OrderStatus`）と、日本時間のカレンダー（`Calendar.japan`）は `PastOrder.swift` にあります。
+
+  ### 型
+
+  | 型 | プロパティ |
+  | --- | --- |
+  | `MonthlyTotal`（`Equatable`） | `month: String`（日本時間の年月。例: `"2026-04"`）、`orderCount: Int`、`total: Int` |
+  | `ProductQuantity`（`Equatable`） | `productID: Int`、`name: String`、`quantity: Int` |
+
+  どちらも、すべてのプロパティを受け取る `public init` を作る。
+
+  ### `enum OrderSummary` の関数
+
+  | 関数 | 内容 |
+  | --- | --- |
+  | `monthlyTotals(_ orders: [PastOrder]) -> [MonthlyTotal]` | キャンセルを除き、**日本時間** の月ごとに件数と合計（`total` の合計）を出す。合計の多い順、合計が同じなら新しい月が先 |
+  | `topProducts(_ orders: [PastOrder], limit: Int) -> [ProductQuantity]` | キャンセルを除き、商品ごとに数量を合計して、多い順に `limit` 件。数量が同じなら商品IDの小さい順 |
+  | `parseOrderIDs(_ inputs: [String]) -> [Int]` | 問い合わせフォームに入力された注文番号（`"#123"`、`" 456 "` など）から番号を取り出す。前後の空白と先頭の `#` は無視する。番号でないものは捨てる |
+
+  ### `Sequence` の拡張（ジェネリクス）
+
+  | 関数 | 内容 |
+  | --- | --- |
+  | `grouped<Key: Hashable>(by key: (Element) -> Key) -> [Key: [Element]]` | キーごとに要素をまとめる |
+  | `sum<Value: AdditiveArithmetic>(of value: (Element) -> Value) -> Value` | 要素から取り出した値の合計（`Int` でも `Double` でも使える） |
+
+  `OrderSummary` の関数は、この2つと `filter` / `map` / `compactMap` / `flatMap` / `sorted` を使って書く。
+
+  ## 受け入れ条件
+
+  - [ ] 上の仕様どおりに集計できる
+  - [ ] `grouped(by:)` と `sum(of:)` が、どんな要素の型でも使える
+  - [ ] `for` 文で配列に追加していく書き方ではなく、高階関数を組み合わせて書いている
+  - [ ] 既存のテストがすべて通る
+
+  ## 参考
+
+  - テスト: `SakuraMartKit/Tests/SakuraMartKitTests/Tasks/OrderSummaryTaskTests.swift`
+  - The Swift Programming Language: Generics https://docs.swift.org/swift-book/documentation/the-swift-programming-language/generics/
+hints:
+  - |
+    `grouped(by:)` は `Dictionary(grouping: self, by: key)` を返すだけで書けます。`sum(of:)` は `reduce(.zero) { $0 + value($1) }` です。
+  - |
+    月のキーは `Calendar.japan.dateComponents([.year, .month], from: date)` から `String(format: "%04d-%02d", year, month)` で作れます。
+  - |
+    `topProducts` は、`flatMap(\.items)` で明細の配列にしてから `grouped(by: \.productID)` でまとめます。`prefix(limit)` の結果は `ArraySlice` なので、最後に配列に戻します（`Array(...)` や `.map { $0 }`）。

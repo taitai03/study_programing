@@ -1,0 +1,25 @@
+questions:
+  - question: "`class InsufficientStockError < Exception` と書くと、どんな問題がありますか？"
+    choices:
+      - 問題はない
+      - "`rescue => e`（クラスを書かない rescue）で受け止められず、想定外にプログラムが止まる"
+      - メッセージを設定できない
+      - include できなくなる
+    answer: 1
+    explanation: "クラスを書かない `rescue` は StandardError とその子だけを受け止めます。独自の例外は StandardError を継承します。"
+  - question: 在庫が足りないとき、`allocate` が `false` を返す設計より、例外を投げる設計のほうが安全な理由はどれですか？
+    choices:
+      - 例外のほうが処理が速いから
+      - 呼び出し元が戻り値を確かめ忘れても、受け止めない限り処理が止まるので、在庫不足のまま注文が作られないから
+      - false はRubyで使えないから
+      - 例外はログに残らないから
+    answer: 1
+    explanation: 戻り値は確かめ忘れると無視されます。業務のルールに反する状態は、例外で処理を止めるほうが安全です。
+  - question: "`include Stockable` のような Mix-in と、`<` による継承の使い分けとして、最も適切な説明はどれですか？"
+    choices:
+      - どちらも同じなので、好きなほうを使う
+      - 継承は「〜の一種」、include は「〜という性質を持つ」ときに使う
+      - include はモデルでしか使えない
+      - 継承は1つのクラスで何回でもできる
+    answer: 1
+    explanation: Ruby のクラスが継承できる親は1つだけですが、module はいくつでも include できます。「在庫を持つ」のような性質は module にすると、別のクラスにも足せます。

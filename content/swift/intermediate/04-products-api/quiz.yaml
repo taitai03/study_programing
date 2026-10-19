@@ -1,0 +1,25 @@
+questions:
+  - question: URLSession で API を呼んだとき、サーバーが 500 を返した場合はどうなりますか？
+    choices:
+      - URLError が投げられる
+      - 例外は投げられず、ステータスコード 500 のレスポンスが返る
+      - アプリが落ちる
+      - 自動で再試行される
+    answer: 1
+    explanation: URLSession が例外を投げるのは、通信自体ができなかったときだけです。ステータスコードは自分で確かめて、エラーにします。
+  - question: "`HTTPProductAPI` が `URLSession.shared` を直接使わず、`HTTPClient` プロトコルを外から受け取るようにする理由はどれですか？"
+    choices:
+      - 通信が速くなるから
+      - テストで、決まったレスポンス（404 や壊れた JSON）を返すスタブに差し替えられるから
+      - URLSession は Swift で使えないから
+      - コードが短くなるから
+    answer: 1
+    explanation: 通信の部分を外から渡せば、本物のサーバーにつながずに、さまざまな状況をテストできます。これを依存性の注入と呼びます。
+  - question: '`{ "products": [ ... ] }` という JSON を読むときに作る型として、最も適切なものはどれですか？'
+    choices:
+      - "`[Product]` に直接デコードする"
+      - "`products` プロパティを持つ Decodable の型を作り、それにデコードする"
+      - JSON を文字列のまま扱う
+      - "`[String: Any]` にする"
+    answer: 1
+    explanation: JSON の形に合わせて、包みの型（ProductsResponse など）を作ります。中の配列は Product の Codable がそのまま使えます。

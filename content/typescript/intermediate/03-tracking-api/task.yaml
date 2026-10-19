@@ -1,0 +1,46 @@
+ticket: |
+  ## 背景
+
+  CSチームの管理画面に「荷物の追跡状況」を表示したいという要望が来ました。配送業者「はやぶさ便」の追跡APIは1件ずつしか問い合わせできず、ときどき遅くなったり、500エラーを返したりします。複数の荷物の状況を、**速く、失敗に強く** まとめて取得する関数を作ります。
+
+  ## やること
+
+  `src/lib/shipping/tracking.ts` の `fetchTrackingStatuses(trackingNumbers, client, options)` を実装する。追跡APIのクライアント（`TrackingClient`）は `src/lib/shipping/client.ts` にあります。
+
+  - すべての荷物を **並列で** 問い合わせる
+  - 結果は `trackingNumbers` と **同じ順番** の `TrackingResult` の配列で返す。1件の失敗が、ほかの荷物の結果に影響しないようにする
+  - 1回の呼び出しには制限時間（`options.timeoutMs`、省略時は 3000ms）を付ける。過ぎたら `signal` を中断（abort）する
+  - 失敗したときの扱い
+
+  | 失敗 | やり直す | やり直しても失敗したときの `reason` |
+  | --- | --- | --- |
+  | 制限時間切れ | する | `timeout` |
+  | `TrackingApiError`（`httpStatus` が500以上） | する | `error` |
+  | `TrackingApiError`（404） | しない | `not_found` |
+  | そのほかのエラー | しない | `error` |
+
+  - やり直す回数は `options.retries`（省略時は 2回。最初の1回と合わせて最大3回呼ぶ）
+
+  ## 受け入れ条件
+
+  - [ ] すべての荷物の状況を、渡した順番で返す
+  - [ ] 並列で問い合わせる（4件を同時に問い合わせる）
+  - [ ] 404 は `not_found` で、やり直さない
+  - [ ] 500番台と制限時間切れは、`retries` 回までやり直す
+  - [ ] 制限時間を過ぎたら `signal` を中断する
+  - [ ] 1件の失敗が、ほかの荷物の結果に影響しない
+  - [ ] 追跡番号が空なら、問い合わせずに空の配列を返す
+  - [ ] 既存のテストと型チェックがすべて通る
+
+  ## 参考
+
+  - テスト: `src/lib/shipping/tracking.task.test.ts`
+  - 開発用のモック: `createMockTrackingClient()`（追跡番号の末尾が `404` / `500` / `999` で動きが変わる）
+  - MDN: AbortController https://developer.mozilla.org/ja/docs/Web/API/AbortController
+hints:
+  - |
+    まず「1件を問い合わせて `TrackingResult` を返す（例外は投げない）」関数 `fetchOne` を作り、`Promise.all(trackingNumbers.map(...))` で並列に呼ぶと、1件の失敗がほかに影響しません。
+  - |
+    制限時間は、`AbortController` と `setTimeout` で作れます。`Promise.race([client.getStatus(n, controller.signal), timeoutPromise])` のように、APIの呼び出しと「時間切れで失敗する Promise」を競争させます。終わったら `clearTimeout` を忘れずに。
+  - |
+    やり直しは `for (let attempt = 0; ; attempt++)` のループの中で `try / catch` し、「やり直してよい失敗」かつ `attempt < retries` なら `continue` します。

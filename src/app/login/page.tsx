@@ -41,7 +41,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
             <GitHubLoginButton />
           ) : (
             <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-              GitHub OAuth App が未設定です。.env.local に GITHUB_CLIENT_ID と GITHUB_CLIENT_SECRET を設定してください。
+              GitHub App が未設定です。.env.local に GITHUB_CLIENT_ID と GITHUB_CLIENT_SECRET を設定してください（docs/github-app.md）。
             </p>
           )}
           {devLoginEnabled && (

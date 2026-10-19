@@ -52,3 +52,10 @@ export async function requireAdmin(): Promise<CurrentUser> {
   if (user.role !== "admin") redirect("/dashboard");
   return user;
 }
+
+/** メンター向けの画面（受講者の進捗、提出）を見られるのは mentor と admin */
+export async function requireMentor(): Promise<CurrentUser> {
+  const user = await requireUser();
+  if (user.role === "learner") redirect("/dashboard");
+  return user;
+}

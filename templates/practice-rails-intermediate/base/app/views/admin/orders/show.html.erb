@@ -1,0 +1,33 @@
+<% content_for :title, "注文 ##{@order.id}" %>
+<p><%= link_to "← 注文一覧", admin_orders_path, class: "muted" %></p>
+<h1>注文 #<%= @order.id %> <%= order_status_badge(@order) %></h1>
+
+<dl class="dl">
+  <dt>注文日時</dt><dd><%= format_time(@order.ordered_at) %></dd>
+  <dt>会員</dt><dd><%= @order.member.name %>（<%= @order.member.rank_label %>）</dd>
+  <dt>クーポン</dt><dd><%= @order.coupon&.code || "—" %></dd>
+</dl>
+
+<table class="table">
+  <thead><tr><th>商品</th><th class="num">単価（税抜）</th><th class="num">数量</th><th class="num">金額</th></tr></thead>
+  <tbody>
+    <% @order.items.each do |item| %>
+      <tr>
+        <td><%= item.product.name %></td>
+        <td class="num"><%= yen(item.unit_price) %></td>
+        <td class="num"><%= item.quantity %></td>
+        <td class="num"><%= yen(item.amount) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<dl class="dl totals">
+  <dt>小計</dt><dd><%= yen(@order.subtotal) %></dd>
+  <dt>会員ランク割引</dt><dd>-<%= yen(@order.rank_discount) %></dd>
+  <dt>クーポン割引</dt><dd>-<%= yen(@order.coupon_discount) %></dd>
+  <dt>消費税</dt><dd><%= yen(@order.tax) %></dd>
+  <dt>送料</dt><dd><%= yen(@order.shipping_fee) %></dd>
+  <dt><strong>合計</strong></dt><dd><strong><%= yen(@order.total) %></strong></dd>
+  <dt>付与ポイント</dt><dd><%= @order.points_earned %>pt</dd>
+</dl>

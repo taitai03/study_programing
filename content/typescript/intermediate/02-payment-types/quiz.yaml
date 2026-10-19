@@ -1,0 +1,25 @@
+questions:
+  - question: "APIのレスポンスを `const r = (await res.json()) as PaymentResult;` と書くことの問題は何ですか？"
+    choices:
+      - 型エラーになってコンパイルできない
+      - 中身を確かめていないので、仕様と違う形のデータが来ても気づけず、あとで実行時に落ちる
+      - 処理が遅くなる
+      - 問題はない
+    answer: 1
+    explanation: "`as` は「この型だと信じる」と書くだけで、実行時には何も確かめません。外部との境目で形を確かめてから型を付けます。"
+  - question: "`switch (result.status)` の `default` で `const unreachable: never = result;` と書いておく理由はどれですか？"
+    choices:
+      - 実行を速くするため
+      - あとで status の種類が増えたときに、case を書き忘れていれば型エラーで気づけるようにするため
+      - result を null にするため
+      - ESLint の警告を消すため
+    answer: 1
+    explanation: すべての case を書いていれば、default に来る result の型は never になります。種類が増えると never に代入できず型エラーになり、直し忘れに気づけます。
+  - question: "`type Result<T, E> = { ok: true; value: T } | { ok: false; error: E }` の `T` と `E` は何ですか？"
+    choices:
+      - 変数の名前
+      - 使うときに決める型（型の引数）
+      - 実行時に渡す値
+      - 決まった型（T は Text、E は Error）
+    answer: 1
+    explanation: ジェネリクスの型引数です。`Result<number, string>` のように、使うときに中身の型を決めます。

@@ -12,10 +12,12 @@
 | 要素 | 使っているもの |
 | --- | --- |
 | アプリ | Next.js 16（App Router）、TypeScript、Tailwind CSS、shadcn/ui |
-| 認証 | Better Auth（GitHubログイン ＋ 許可リスト） |
+| 認証 | Better Auth（GitHub App でログイン ＋ 許可リスト） |
+| GitHub 連携 | GitHub App（課題リポジトリのPRとテストの結果を Webhook で受け取って判定する） |
 | DB | PostgreSQL ＋ Drizzle ORM（ローカルは Docker、本番は Neon） |
 | エディタ・実行 | Monaco Editor、受講者のコードは Web Worker 内で実行（TypeScript は sucrase で変換、Ruby は ruby.wasm） |
 | 教材 | `content/` の Markdown と YAML |
+| 課題のテンプレート | `templates/`（さくらマートのアプリと、課題の開始ブランチ。GitHub の `practice-*` リポジトリに公開する） |
 
 ## ローカルで動かす
 
@@ -33,8 +35,8 @@ cp .env.example .env.local
 
 - `BETTER_AUTH_SECRET`: `openssl rand -base64 32` で生成した値
 - `INITIAL_ADMIN_GITHUB_LOGIN`: 最初の管理者のGitHubユーザー名
-- GitHubでログインする場合: [GitHub OAuth App](https://github.com/settings/developers) を作り、`GITHUB_CLIENT_ID` と `GITHUB_CLIENT_SECRET` を設定（コールバックURLは `http://localhost:3000/api/auth/callback/github`）
-- GitHubなしで動作確認する場合: `DEV_LOGIN=true` と `DEV_LOGIN_PASSWORD`（任意の文字列）を設定
+- GitHubでログインする・課題リポジトリと連携する場合: GitHub App を作り、`GITHUB_CLIENT_ID` などを設定（手順は [docs/github-app.md](docs/github-app.md)）
+- GitHubなしで動作確認する場合: `DEV_LOGIN=true` と `DEV_LOGIN_PASSWORD`（8文字以上の任意の文字列）を設定
 
 DBを起動して、テーブルを作ります。
 
@@ -78,6 +80,7 @@ npm test
 | `lesson.md` | 解説。frontmatter に `title`、`summary`、`minutes` |
 | `exercise.yaml` | 演習。`ticket`（チケット形式の課題文）、`starter`、`solution`、`tests`、`hints`、`typecheck` |
 | `quiz.yaml` | 確認クイズ。`questions`（`question`、`choices`、`answer`、`explanation`） |
+| `task.yaml` | ローカルで解いてPRを出す課題（中級以降）。`ticket`（課題文）、`protectedPaths`（受講者が変更してはいけないファイル）、`hints` |
 
 テストのコードでは `expect(値).toBe(期待値)` などと、出力の配列 `logs` が使えます（[src/lib/runner/harness.ts](src/lib/runner/harness.ts)）。
 
@@ -99,3 +102,21 @@ expect(logs.first(2)).to eq(["550", "0"]) # logs は puts / p の出力（1行�
 | `solution.swift` | 模範解答。受講者には配らず、教材のテストで使う |
 
 セルフチェック用の `check` 関数は `content/swift/beginner/SelfCheck.swift` にあり、ダウンロードする Playground の `Sources/` に入ります。
+
+## PRで解く課題（中級以降）
+
+中級以降の課題は、受講者が自分の GitHub アカウントに作った課題リポジトリで解き、PRを出して提出します。
+
+- 課題文は `content/<言語>/<レベル>/<NN-slug>/task.yaml`。開始ブランチは `start/<NN-slug>`
+- さくらマートのアプリと、課題ごとの開始ブランチの準備（テスト、模範解答）は `templates/` にあります。検証と公開の手順は [templates/README.md](templates/README.md)
+- PR の判定: 開始ブランチに向けたPRで、GitHub Actions のテストがすべて通れば合格。課題のテストや `.github/` を変更したPRは判定対象外。合格した状態でマージすると、課題が完了になる
+- GitHub App の設定は [docs/github-app.md](docs/github-app.md)
+
+## メンター・管理者向けの画面
+
+| 画面 | URL | 使える人 |
+| --- | --- | --- |
+| 受講者一覧 | `/mentor` | mentor、admin |
+| 受講者の詳細（レッスンごとの状態、提出の履歴） | `/mentor/users/<GitHubユーザー名>` | mentor、admin |
+| 提出の詳細（PRの差分、テストの結果） | `/mentor/submissions/<ID>` | mentor、admin |
+| ユーザー管理 | `/admin/users` | admin |

@@ -82,7 +82,7 @@ function CourseCard({
       <CardHeader>
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{course.levelLabel}</Badge>
-          <span className="text-xs text-muted-foreground">{MODE_LABELS[course.mode]}</span>
+          <span className="text-xs text-muted-foreground">{course.modeLabel ?? MODE_LABELS[course.mode]}</span>
         </div>
         <CardTitle className="text-base">{course.title}</CardTitle>
         <CardDescription>{course.description}</CardDescription>

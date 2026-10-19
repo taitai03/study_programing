@@ -1,0 +1,25 @@
+questions:
+  - question: 絞り込みのロジック（どの商品を表示するか）を、View ではなく ViewModel に書く主な理由はどれですか？
+    choices:
+      - 画面の表示が速くなるから
+      - SwiftUI に依存せずにテストでき（このアプリでは Linux でも）、View は表示に専念できるから
+      - View には if 文が書けないから
+      - ViewModel に書かないとコンパイルできないから
+    answer: 1
+    explanation: ロジックを ViewModel に分けると、画面を動かさずにテストで確かめられます。View は値の表示と操作の受け渡しだけになり、読みやすくなります。
+  - question: "`filteredProducts` を、`products` と `selectedCategory` から計算する計算型プロパティにする利点はどれですか？"
+    choices:
+      - メモリを節約できる
+      - 元の値が変わっても計算し直されるので、保存した値との食い違い（更新し忘れ）が起きない
+      - 必ず速くなる
+      - SwiftUI でしか使えなくなる
+    answer: 1
+    explanation: 計算できる値を別に保存すると、元の値を変えたときに更新し忘れて食い違います。計算型プロパティなら、いつも元の値と一致します。
+  - question: "`@Observable` のクラスのプロパティを View の `body` で読むと、どうなりますか？"
+    choices:
+      - 何も起きない
+      - そのプロパティが変わったときに、SwiftUI が画面を更新する
+      - プロパティが読み取り専用になる
+      - View が作られるたびにクラスが作り直される
+    answer: 1
+    explanation: Observation は、body で読んだプロパティを覚えておき、それが変わったときにだけ画面を更新します。

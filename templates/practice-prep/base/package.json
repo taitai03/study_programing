@@ -1,0 +1,13 @@
+{
+  "name": "sakura-mart-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "さくらマートの社内ツール（開発の準備の練習用）",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

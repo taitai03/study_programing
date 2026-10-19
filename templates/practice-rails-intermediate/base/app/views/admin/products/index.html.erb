@@ -1,0 +1,21 @@
+<% content_for :title, "商品" %>
+<h1>商品</h1>
+<p class="muted"><%= @products.size %>件</p>
+
+<table class="table">
+  <thead>
+    <tr><th>ID</th><th>商品名</th><th>カテゴリ</th><th class="num">価格（税抜）</th><th class="num">在庫</th><th>公開</th></tr>
+  </thead>
+  <tbody>
+    <% @products.each do |product| %>
+      <tr>
+        <td><%= product.id %></td>
+        <td><%= product.name %></td>
+        <td><%= product.category.name %></td>
+        <td class="num"><%= yen(product.price) %></td>
+        <td class="num"><%= product.stock %></td>
+        <td><%= product.published? ? tag.span("公開", class: "badge badge-completed") : tag.span("非公開", class: "badge") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title><%= content_for?(:title) ? "#{yield(:title)} | " : "" %>さくらマート 管理画面</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container header-inner">
+        <%= link_to "さくらマート 管理画面", admin_root_path, class: "brand" %>
+        <nav class="nav">
+          <%= link_to "ダッシュボード", admin_root_path %>
+          <%= link_to "商品", admin_products_path %>
+          <%= link_to "注文", admin_orders_path %>
+        </nav>
+        <div class="header-user">
+          <span class="muted"><%= current_user&.name %></span>
+          <%= button_to "ログアウト", session_path, method: :delete, class: "button button-ghost" %>
+        </div>
+      </div>
+    </header>
+
+    <main class="container main">
+      <% if notice %><p class="flash flash-notice" role="status"><%= notice %></p><% end %>
+      <% if alert %><p class="flash flash-alert" role="alert"><%= alert %></p><% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

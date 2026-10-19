@@ -1,0 +1,33 @@
+ja:
+  activerecord:
+    models:
+      user: スタッフ
+      category: カテゴリ
+      product: 商品
+      member: 会員
+      coupon: クーポン
+      order: 注文
+      order_item: 注文明細
+    attributes:
+      user:
+        name: 名前
+        email_address: メールアドレス
+        password: パスワード
+      category:
+        name: カテゴリ名
+      product:
+        name: 商品名
+        description: 説明
+        price: 価格
+        category: カテゴリ
+        published: 公開
+        stock: 在庫
+      member:
+        name: 名前
+        email: メールアドレス
+        rank: 会員ランク
+      coupon:
+        code: コード
+        discount_value: 割引の値
+      order_item:
+        quantity: 数量

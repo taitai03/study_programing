@@ -1,0 +1,39 @@
+ticket: |
+  ## 背景
+
+  管理画面の商品一覧（`/admin/products`）には一覧しかなく、商品の説明や販売実績を見るには rails console を使うしかありません。店舗スタッフから「商品を選んだら、詳しい情報を見られるようにしてほしい」と要望が来ています。
+
+  ## やること
+
+  `/admin/products/:id` に **商品詳細ページ** を追加する。
+
+  - 表示する項目
+    - 商品名、カテゴリ、公開状態（「公開」または「非公開」）
+    - 価格: 税抜と税込（例: `2,980円（税込 3,278円）`。税込は端数切り捨て）
+    - 在庫数
+    - 販売実績: `累計販売数: 5個`（キャンセルの注文は含めない）
+    - 説明、更新日時
+  - 商品一覧の商品名を、詳細ページへのリンクにする
+  - 存在しない商品のときは 404
+  - ログインしていなければ、ほかの管理画面と同じくログイン画面に移動する
+
+  ## 受け入れ条件
+
+  - [ ] 商品詳細ページに、上の項目が表示される
+  - [ ] 商品一覧から、商品名のリンクで詳細に移動できる
+  - [ ] 存在しない商品は 404 になる
+  - [ ] 税込の価格や販売数の計算は、ビューではなくモデル（`Product`）のメソッドに書いている
+  - [ ] 既存のテストがすべて通る
+
+  ## 参考
+
+  - テスト: `spec/tasks/product_detail_task_spec.rb`
+  - 注文の詳細ページ（`Admin::OrdersController#show`、`app/views/admin/orders/show.html.erb`）が参考になります
+  - Rails ガイド: ルーティング https://railsguides.jp/routing.html
+hints:
+  - |
+    まず `config/routes.rb` の `resources :products` に `show` を足し、`bin/rails routes | grep product` で URL とヘルパー名を確かめましょう。
+  - |
+    コントローラーに `show` アクションを作り、`@product = Product.find(params[:id])` で商品を読みます。ビューは `app/views/admin/products/show.html.erb` に作ります。
+  - |
+    累計販売数は、商品の明細（`order_items`）を注文（`orders`）と結合して、キャンセル以外に絞って数量を合計します。`order_items.joins(:order).merge(Order.for_sales).sum(:quantity)` のように書けます。

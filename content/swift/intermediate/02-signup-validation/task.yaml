@@ -1,0 +1,61 @@
+ticket: |
+  ## 背景
+
+  アプリに会員登録の画面を作ります（画面は別の担当者が作ります）。入力が正しくないときは、**入力欄の下に、項目ごとのエラーメッセージ** を表示したいので、入力チェックのロジックを `SakuraMartKit` に作ってください。
+
+  ## やること
+
+  `SakuraMartKit/Sources/SakuraMartKit/SignupForm.swift` に、入力チェックを実装する（`SignupForm`、`SignupField`、`ValidatedSignup` はできています）。
+
+  ### 入力のルール（上から順に確かめる）
+
+  | 入力欄 | ルール | エラー |
+  | --- | --- | --- |
+  | 名前 | 前後の空白を取り除いて、空でない | `nameMissing` |
+  | | 50文字以内 | `nameTooLong(max: 50)` |
+  | メールアドレス | 前後の空白を取り除き、`○○@○○.○○` の形（空白を含まない） | `emailInvalid` |
+  | パスワード | 8文字以上 | `passwordTooShort(min: 8)` |
+  | | 英字と数字を両方含む | `passwordNeedsLetterAndNumber` |
+  | パスワード（確認） | パスワードと同じ | `passwordMismatch` |
+
+  ### エラー型 `SignupError`
+
+  - `Error`、`Equatable`、`LocalizedError` に準拠する
+  - `field: SignupField`: どの入力欄のエラーか
+  - `errorDescription`: ユーザーに見せるメッセージ
+
+  | エラー | メッセージ |
+  | --- | --- |
+  | `nameMissing` | お名前を入力してください |
+  | `nameTooLong(max: 50)` | お名前は50文字以内で入力してください |
+  | `emailInvalid` | メールアドレスの形式が正しくありません |
+  | `passwordTooShort(min: 8)` | パスワードは8文字以上にしてください |
+  | `passwordNeedsLetterAndNumber` | パスワードには英字と数字を両方含めてください |
+  | `passwordMismatch` | パスワード（確認）が一致しません |
+
+  ### `SignupForm` のメソッド
+
+  | メソッド | 内容 |
+  | --- | --- |
+  | `validate() throws -> ValidatedSignup` | 上から順に確かめ、最初のエラーを投げる。正しければ、名前とメールアドレスの前後の空白を取り除き、メールアドレスを小文字にした値を返す |
+  | `fieldErrors() -> [SignupField: String]` | すべての入力欄を確かめ、入力欄ごとに最初のエラーのメッセージを返す（エラーがなければ空） |
+
+  ## 受け入れ条件
+
+  - [ ] 上のルールどおりにエラーを投げる
+  - [ ] エラーが、入力欄とユーザーに見せるメッセージを持つ
+  - [ ] `fieldErrors()` で、入力欄ごとのメッセージを得られる
+  - [ ] `validate()` と `fieldErrors()` で、同じチェックの処理を使い回している（ルールを二重に書かない）
+  - [ ] 既存のテストがすべて通る
+
+  ## 参考
+
+  - テスト: `SakuraMartKit/Tests/SakuraMartKitTests/Tasks/SignupValidationTaskTests.swift`
+  - The Swift Programming Language: Error Handling https://docs.swift.org/swift-book/documentation/the-swift-programming-language/errorhandling/
+hints:
+  - |
+    入力欄ごとに `private func validName() throws -> String` のような小さな関数を作り、`validate()` からは順に `try` で呼びます。
+  - |
+    `fieldErrors()` では、それぞれのチェックを `do { try ... } catch let error as SignupError { errors[error.field] = error.errorDescription }` のように1つずつ実行します。
+  - |
+    メールアドレスの形は、正規表現 `#"^[^@\s]+@[^@\s]+\.[^@\s]+$"#` と `range(of:options: .regularExpression)` で確かめられます。英字と数字は、`password.contains { $0.isASCII && $0.isLetter }` のように調べます。

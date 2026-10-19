@@ -1,0 +1,54 @@
+ticket: |
+  ## 背景
+
+  経理チームから「月ごとに、どの商品がいくら売れたかをExcelで見たい」と依頼がありました。旧システムから出力した注文明細のCSV（`data/order-lines-sample.csv` がその例）をもとに、**月別・商品別の売上CSV** を出力するスクリプトを作ります。
+
+  ## やること
+
+  `src/reports/sales-csv.ts` の次の関数を実装する。スクリプト本体（`scripts/sales-csv.ts`）はできています。
+
+  | 関数 | 内容 |
+  | --- | --- |
+  | `parseOrderLines(csvText)` | 注文明細CSVを読み込み、`OrderLine` の配列にする |
+  | `aggregateMonthlySales(lines)` | 月別・商品別に集計する |
+  | `toCsv(rows)` | 集計結果をCSVの文字列にする |
+
+  CSVの読み書きには npm パッケージ（`csv-parse`、`csv-stringify` など）を使ってかまいません。
+
+  ### 入力（注文明細CSV）
+
+  - 1行目は見出し: `order_id,ordered_at,status,product_id,product_name,quantity,unit_price`
+  - `ordered_at` は UTC の日時（例: `2026-03-31T15:00:00Z`）
+  - 値にカンマが含まれる場合はダブルクォートで囲まれている
+  - 改行コードは LF または CRLF
+
+  ### 出力（月別・商品別の売上CSV）
+
+  - 1行目は見出し: `month,product_id,product_name,quantity,sales`
+  - `month` は **日本時間** の年月（例: `2026-04`）
+  - `quantity` は数量の合計、`sales` は 単価 × 数量 の合計（税抜）
+  - 並び順: 月の古い順 → 同じ月の中では売上の多い順 → 売上が同じなら商品IDの小さい順
+  - 必要な値はダブルクォートで囲む（中のダブルクォートは `""` にする）。改行は LF で、最後の行も改行で終わる
+
+  ## 受け入れ条件
+
+  - [ ] 注文明細CSVの各行を、数値と日時に変換して読み込める（カンマを含む商品名、CRLF も読める）
+  - [ ] 列の数が合わない行や、数値でない値があれば、**何行目か** をメッセージに含めたエラーにする
+  - [ ] キャンセル（`cancelled`）の注文は集計に含めない
+  - [ ] 日本時間の月ごと・商品ごとに、数量と売上を合計し、指定の順に並べる
+  - [ ] 指定の形式のCSVを出力する
+  - [ ] `npx tsx scripts/sales-csv.ts data/order-lines-sample.csv output/monthly-sales.csv` でファイルが出力される
+  - [ ] 既存のテスト（`npm test`）と型チェック（`npm run typecheck`）がすべて通る
+
+  ## 参考
+
+  - テスト: `src/reports/sales-csv.task.test.ts`（`npx vitest src/reports` で、このテストだけを実行できます）
+  - csv-parse: https://csv.js.org/parse/ 、csv-stringify: https://csv.js.org/stringify/
+protectedPaths: []
+hints:
+  - |
+    まずテストを実行して、どのテストが何を期待しているかを読みましょう。`npx vitest src/reports` を実行したままにしておくと、保存するたびに自動で再実行されます。
+  - |
+    `csv-parse` の `parse(text, { skip_empty_lines: true, relax_column_count: true })` は、各行を文字列の配列にして返します。`relax_column_count` を付けると、列の数が合わない行でもエラーにならずに読めるので、自分で行番号付きのエラーを出せます。
+  - |
+    日本時間の年月は、UTC の時刻に9時間足してから `toISOString().slice(0, 7)` で取り出せます。
