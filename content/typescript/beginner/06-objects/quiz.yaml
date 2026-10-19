@@ -1,0 +1,25 @@
+questions:
+  - question: "`const order = { id: 101, total: 3280 };` のとき、合計金額を取り出す書き方はどれですか？"
+    choices:
+      - "`order.total`"
+      - "`order[total]`"
+      - "`total.order`"
+      - "`order(total)`"
+    answer: 0
+    explanation: オブジェクトのプロパティは `オブジェクト.プロパティ名` で取り出します。
+  - question: カテゴリごとに数を数えるコード `counts[category] = (counts[category] ?? 0) + 1;` で、`?? 0` がしていることは何ですか？
+    choices:
+      - 0で割らないようにしている
+      - そのカテゴリをまだ数えていない（値がない）ときに、0から数え始めるようにしている
+      - 値を0にリセットしている
+      - 数が0のカテゴリを消している
+    answer: 1
+    explanation: 初めて出てきたカテゴリは、まだ値がありません（`undefined`）。`?? 0` で「値がなければ0」として、そこに1を足します。
+  - question: 商品の一覧から「公開中で在庫切れ」の商品だけを集めたいです。正しい条件はどれですか？
+    choices:
+      - "`product.published || product.stock === 0`"
+      - "`product.published && product.stock === 0`"
+      - "`!product.published && product.stock === 0`"
+      - "`product.stock = 0`"
+    answer: 1
+    explanation: 「公開中」かつ「在庫が0」なので `&&` でつなぎます。`=` は代入なので、比べるときは `===` を使います。

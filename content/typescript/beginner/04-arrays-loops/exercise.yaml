@@ -1,0 +1,98 @@
+ticket: |
+  ## 背景
+  店長から「毎日の売上の状況をすぐに知りたい」と依頼がありました。
+  まずは、1日の注文金額（税込）の一覧から、基本的な数字を出す関数を作ります。
+
+  ## やること
+  1. `sumTotals`: 注文金額の合計を返す
+  2. `countLargeOrders`: 指定した金額（`threshold`）以上の注文の件数を返す
+  3. `maxTotal`: 一番大きい注文金額を返す
+
+  注文が1件もない（空の配列の）場合は、どれも 0 を返してください。
+
+  ## 受け入れ条件
+  - [ ] 今日の注文（`todayOrderTotals`）の合計が 23,960 になる
+  - [ ] 今日の注文のうち5,000円以上の注文は 2 件
+  - [ ] 今日の注文の最大金額は 12,800
+  - [ ] 空の配列では、合計・件数・最大金額がすべて 0 になる
+starter: |
+  const todayOrderTotals: number[] = [3280, 1500, 12800, 980, 5400];
+
+  /** 注文金額の合計 */
+  function sumTotals(totals: number[]): number {
+    // TODO
+    return 0;
+  }
+
+  /** threshold 円以上の注文の件数 */
+  function countLargeOrders(totals: number[], threshold: number): number {
+    // TODO
+    return 0;
+  }
+
+  /** 一番大きい注文金額 */
+  function maxTotal(totals: number[]): number {
+    // TODO
+    return 0;
+  }
+
+  console.log("合計:", sumTotals(todayOrderTotals));
+  console.log("5,000円以上:", countLargeOrders(todayOrderTotals, 5000));
+  console.log("最大:", maxTotal(todayOrderTotals));
+solution: |
+  const todayOrderTotals: number[] = [3280, 1500, 12800, 980, 5400];
+
+  /** 注文金額の合計 */
+  function sumTotals(totals: number[]): number {
+    let sum = 0;
+    for (const total of totals) {
+      sum += total;
+    }
+    return sum;
+  }
+
+  /** threshold 円以上の注文の件数 */
+  function countLargeOrders(totals: number[], threshold: number): number {
+    let count = 0;
+    for (const total of totals) {
+      if (total >= threshold) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  /** 一番大きい注文金額 */
+  function maxTotal(totals: number[]): number {
+    let max = 0;
+    for (const total of totals) {
+      if (total > max) {
+        max = total;
+      }
+    }
+    return max;
+  }
+
+  console.log("合計:", sumTotals(todayOrderTotals));
+  console.log("5,000円以上:", countLargeOrders(todayOrderTotals, 5000));
+  console.log("最大:", maxTotal(todayOrderTotals));
+tests:
+  - name: 今日の注文の合計が 23,960 になる
+    code: |
+      expect(sumTotals(todayOrderTotals)).toBe(23960);
+  - name: 今日の注文のうち5,000円以上の注文は 2 件
+    code: |
+      expect(countLargeOrders(todayOrderTotals, 5000)).toBe(2);
+      expect(countLargeOrders([5000, 4999], 5000)).toBe(1);
+  - name: 今日の注文の最大金額は 12,800
+    code: |
+      expect(maxTotal(todayOrderTotals)).toBe(12800);
+      expect(maxTotal([980, 3200, 1500])).toBe(3200);
+  - name: 空の配列では、合計・件数・最大金額がすべて 0 になる
+    code: |
+      expect(sumTotals([])).toBe(0);
+      expect(countLargeOrders([], 5000)).toBe(0);
+      expect(maxTotal([])).toBe(0);
+hints:
+  - 解説の「集計の基本パターン」がそのまま使えます。
+  - 関数の中では、受け取った引数（`totals`）を使いましょう。`todayOrderTotals` を直接使うと、別の配列を渡したときに正しく動きません。
