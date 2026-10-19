@@ -21,7 +21,7 @@
 | 使うコース | JS/TS 中級・上級 | Ruby/Rails 中級・上級 | Swift 中級・上級 |
 | 利用者 | スタッフ（管理画面）＋会員（API） | スタッフ（管理画面）＋会員（API） | 会員（アプリ） |
 | 画面 | 管理画面のみ | 管理画面のみ | 会員向けアプリ |
-| 構成 | Next.js（App Router）、TypeScript、Drizzle、Auth.js、shadcn/ui ＋ Tailwind CSS | Rails 8、Hotwire（ERB）、Rails標準の認証、RSpec | SwiftUI、iOS 17以上、ロジックは Swift Package（`SakuraMartKit`） |
+| 構成 | Next.js（App Router）、TypeScript、Drizzle、Auth.js（スタッフのログイン）、shadcn/ui ＋ Tailwind CSS | Rails 8、Hotwire（ERB）、Rails標準の認証、RSpec | SwiftUI、iOS 17以上、ロジックは Swift Package（`SakuraMartKit`） |
 | DB | 中級: SQLite／上級: PostgreSQL | 中級: SQLite／上級: PostgreSQL | なし（端末内の保存のみ） |
 | 外部API | 決済・配送のAPIはモック | 決済・配送のAPIはモック | 普段はアプリ内のモックAPI。設定でNext.js版のAPIにも接続できる |
 | テスト | Vitest、React Testing Library | RSpec（モデル、リクエスト、システム） | Swift Testing（`SakuraMartKit` をLinuxでテスト） |
@@ -192,7 +192,10 @@ git push -u origin work/07-order-filter
 - Claudeが作り、[@taitai03](https://github.com/taitai03) がレビューする
 - M1・M2（初級）ではサンプルアプリは使わない。ただし初級の演習も3章の業務仕様に合わせる
 
-## 8. 未決事項
+## 8. 決定事項
 
-- [ ] テンプレートリポジトリを置く場所（`taitai03` の個人アカウントか、新しく作るOrganizationか）
-- [ ] 中級版のNext.js版で、スタッフのログインに Auth.js を使うか、もっと単純な仕組みにするか（上級の「認証と認可」の課題で扱いやすいほうにする）
+- テンプレートリポジトリとGitHub Appは **[@taitai03](https://github.com/taitai03) の個人アカウント** に置く
+  - テンプレートは受講者がコピーできるように **public** にする。模範解答は入れない
+  - 名前は `practice-<コース>` で揃える（例: `taitai03/practice-ts-intermediate`、`taitai03/practice-rails-advanced`）
+- Next.js版のスタッフのログインは **Auth.js** を使う（現場で使われるライブラリに慣れるため）
+  - 上級の「認証と認可」の課題では、Auth.jsのセッションの扱い方と、認可の判定をどこで行うかを中心に扱う
