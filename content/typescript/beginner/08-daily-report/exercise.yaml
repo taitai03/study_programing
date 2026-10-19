@@ -1,0 +1,252 @@
+ticket: |
+  ## 背景
+  店長から「毎日の閉店後に、その日の売上の要点を1画面で見たい」と依頼がありました。
+  画面は別の担当者が作るので、あなたは注文データからレポートの数字を作る関数を担当します。
+
+  ## 仕様書
+  関数 `createDailyReport(orders: Order[]): DailyReport` を作る。型（`Order`、`DailyReport` など）はエディタに定義済み。
+
+  | 項目 | 内容 |
+  | --- | --- |
+  | `orderCount` | 注文の件数 |
+  | `sales` | 売上。各注文の小計（単価 × 数量の合計、税抜）の合計 |
+  | `averageOrderValue` | 1注文あたりの平均金額。`sales ÷ orderCount`（端数は切り捨て）。注文が0件なら 0 |
+  | `topProducts` | 商品別の販売数ランキング。販売数の多い順に、最大3商品 |
+
+  - キャンセル（`status` が `"cancelled"`）の注文は、**すべての項目で** 集計に含めない
+  - ランキングで販売数が同じ商品は、注文データに先に出てきた商品を上にする
+  - 注文が0件のときは、件数・売上・平均は 0、ランキングは空の配列
+
+  ## 受け入れ条件
+  - [ ] 今日の注文（`todayOrders`）の件数が 4 件になる（キャンセルを除く）
+  - [ ] 今日の売上が 6,652 円になる
+  - [ ] 今日の1注文あたりの平均金額が 1,663 円になる
+  - [ ] 今日のランキングが「天然水 2L（10個）」「国産りんごジュース 1L（4個）」「ふっくら食パン（3個）」になる
+  - [ ] 販売数が同じ商品は、先に出てきた商品が上になる
+  - [ ] 注文が0件のときは、0 と空のランキングになる
+starter: |
+  type OrderStatus = "pending" | "paid" | "shipped" | "delivered" | "cancelled";
+
+  type OrderItem = {
+    productName: string;
+    unitPrice: number; // 税抜
+    quantity: number;
+  };
+
+  type Order = {
+    id: number;
+    status: OrderStatus;
+    items: OrderItem[];
+  };
+
+  type ProductSales = {
+    productName: string;
+    quantity: number;
+  };
+
+  type DailyReport = {
+    orderCount: number;
+    sales: number;
+    averageOrderValue: number;
+    topProducts: ProductSales[];
+  };
+
+  const todayOrders: Order[] = [
+    {
+      id: 1,
+      status: "paid",
+      items: [
+        { productName: "国産りんごジュース 1L", unitPrice: 398, quantity: 3 },
+        { productName: "ふっくら食パン", unitPrice: 248, quantity: 2 },
+      ],
+    },
+    {
+      id: 2,
+      status: "shipped",
+      items: [
+        { productName: "竹のまな板", unitPrice: 1980, quantity: 1 },
+        { productName: "天然水 2L", unitPrice: 128, quantity: 6 },
+      ],
+    },
+    {
+      id: 3,
+      status: "cancelled",
+      items: [{ productName: "国産りんごジュース 1L", unitPrice: 398, quantity: 10 }],
+    },
+    {
+      id: 4,
+      status: "delivered",
+      items: [
+        { productName: "天然水 2L", unitPrice: 128, quantity: 4 },
+        { productName: "ボールペン 3本セット", unitPrice: 330, quantity: 2 },
+      ],
+    },
+    {
+      id: 5,
+      status: "pending",
+      items: [
+        { productName: "国産りんごジュース 1L", unitPrice: 398, quantity: 1 },
+        { productName: "ふっくら食パン", unitPrice: 248, quantity: 1 },
+        { productName: "食器用スポンジ", unitPrice: 198, quantity: 2 },
+      ],
+    },
+  ];
+
+  // 仕様書（左のチケット）を読んで、createDailyReport を作ってください。
+  // 必要なら、ほかの関数を作って使ってもかまいません。
+
+solution: |
+  type OrderStatus = "pending" | "paid" | "shipped" | "delivered" | "cancelled";
+
+  type OrderItem = {
+    productName: string;
+    unitPrice: number; // 税抜
+    quantity: number;
+  };
+
+  type Order = {
+    id: number;
+    status: OrderStatus;
+    items: OrderItem[];
+  };
+
+  type ProductSales = {
+    productName: string;
+    quantity: number;
+  };
+
+  type DailyReport = {
+    orderCount: number;
+    sales: number;
+    averageOrderValue: number;
+    topProducts: ProductSales[];
+  };
+
+  const todayOrders: Order[] = [
+    {
+      id: 1,
+      status: "paid",
+      items: [
+        { productName: "国産りんごジュース 1L", unitPrice: 398, quantity: 3 },
+        { productName: "ふっくら食パン", unitPrice: 248, quantity: 2 },
+      ],
+    },
+    {
+      id: 2,
+      status: "shipped",
+      items: [
+        { productName: "竹のまな板", unitPrice: 1980, quantity: 1 },
+        { productName: "天然水 2L", unitPrice: 128, quantity: 6 },
+      ],
+    },
+    {
+      id: 3,
+      status: "cancelled",
+      items: [{ productName: "国産りんごジュース 1L", unitPrice: 398, quantity: 10 }],
+    },
+    {
+      id: 4,
+      status: "delivered",
+      items: [
+        { productName: "天然水 2L", unitPrice: 128, quantity: 4 },
+        { productName: "ボールペン 3本セット", unitPrice: 330, quantity: 2 },
+      ],
+    },
+    {
+      id: 5,
+      status: "pending",
+      items: [
+        { productName: "国産りんごジュース 1L", unitPrice: 398, quantity: 1 },
+        { productName: "ふっくら食パン", unitPrice: 248, quantity: 1 },
+        { productName: "食器用スポンジ", unitPrice: 198, quantity: 2 },
+      ],
+    },
+  ];
+
+  function calcSubtotal(order: Order): number {
+    let subtotal = 0;
+    for (const item of order.items) {
+      subtotal += item.unitPrice * item.quantity;
+    }
+    return subtotal;
+  }
+
+  function rankProducts(orders: Order[]): ProductSales[] {
+    const counts: Record<string, number> = {};
+    for (const order of orders) {
+      for (const item of order.items) {
+        counts[item.productName] = (counts[item.productName] ?? 0) + item.quantity;
+      }
+    }
+    const list = Object.entries(counts).map((entry) => {
+      return { productName: entry[0], quantity: entry[1] };
+    });
+    list.sort((a, b) => b.quantity - a.quantity);
+    return list.slice(0, 3);
+  }
+
+  function createDailyReport(orders: Order[]): DailyReport {
+    const valid: Order[] = [];
+    for (const order of orders) {
+      if (order.status !== "cancelled") {
+        valid.push(order);
+      }
+    }
+
+    let sales = 0;
+    for (const order of valid) {
+      sales += calcSubtotal(order);
+    }
+
+    return {
+      orderCount: valid.length,
+      sales,
+      averageOrderValue: valid.length === 0 ? 0 : Math.floor(sales / valid.length),
+      topProducts: rankProducts(valid),
+    };
+  }
+
+  console.log(createDailyReport(todayOrders));
+tests:
+  - name: 今日の注文の件数が 4 件になる（キャンセルを除く）
+    code: |
+      expect(createDailyReport(todayOrders).orderCount).toBe(4);
+  - name: 今日の売上が 6,652 円になる
+    code: |
+      expect(createDailyReport(todayOrders).sales).toBe(6652);
+  - name: 今日の1注文あたりの平均金額が 1,663 円になる
+    code: |
+      expect(createDailyReport(todayOrders).averageOrderValue).toBe(1663);
+  - name: 今日のランキングが「天然水 2L」「国産りんごジュース 1L」「ふっくら食パン」になる
+    code: |
+      expect(createDailyReport(todayOrders).topProducts).toEqual([
+        { productName: "天然水 2L", quantity: 10 },
+        { productName: "国産りんごジュース 1L", quantity: 4 },
+        { productName: "ふっくら食パン", quantity: 3 },
+      ]);
+  - name: 販売数が同じ商品は、先に出てきた商品が上になる
+    code: |
+      const orders = [
+        { id: 1, status: "paid", items: [
+          { productName: "A", unitPrice: 100, quantity: 2 },
+          { productName: "B", unitPrice: 100, quantity: 3 },
+        ] },
+        { id: 2, status: "paid", items: [
+          { productName: "C", unitPrice: 100, quantity: 2 },
+          { productName: "D", unitPrice: 100, quantity: 2 },
+        ] },
+      ];
+      expect(createDailyReport(orders).topProducts).toEqual([
+        { productName: "B", quantity: 3 },
+        { productName: "A", quantity: 2 },
+        { productName: "C", quantity: 2 },
+      ]);
+  - name: 注文が0件のときは、0 と空のランキングになる
+    code: |
+      expect(createDailyReport([])).toEqual({ orderCount: 0, sales: 0, averageOrderValue: 0, topProducts: [] });
+      expect(createDailyReport([{ id: 9, status: "cancelled", items: [{ productName: "A", unitPrice: 100, quantity: 1 }] }]).orderCount).toBe(0);
+hints:
+  - 解説の「仕様書から作るときの手順」に沿って、まずはルールを箇条書きにしてみましょう。
+  - 最初にキャンセル以外の注文だけを集めた配列を作っておくと、そのあとの集計ではキャンセルを気にしなくて済みます。
+  - 1つの注文の小計を求める関数は、レッスン7で直したものが使えます。
+  - ランキングは「商品ごとに数える（レッスン6）→ 配列にする → 並べ替える → 先頭3つ」の順で作れます。

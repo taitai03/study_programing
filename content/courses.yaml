@@ -1,0 +1,81 @@
+# コースの一覧。教材（NN-xxx/lesson.md）がまだないコースは「準備中」と表示される
+- id: typescript/beginner
+  language: typescript
+  languageLabel: JavaScript / TypeScript
+  level: beginner
+  levelLabel: 初級
+  title: JavaScript / TypeScript 初級
+  description: 業務のルール（料金計算、条件による振り分け、データの集計）を、TypeScriptの関数として仕様どおりに書けるようになる。
+  mode: browser
+- id: ruby/beginner
+  language: ruby
+  languageLabel: Ruby / Rails
+  level: beginner
+  levelLabel: 初級
+  title: Ruby 初級
+  description: 業務のルールを、Rubyのメソッドやクラスとして仕様どおりに書けるようになる。
+  mode: browser
+- id: swift/beginner
+  language: swift
+  languageLabel: Swift
+  level: beginner
+  levelLabel: 初級
+  title: Swift 初級
+  description: アプリの中の業務ロジックを、Swiftの関数や型として仕様どおりに書けるようになる。
+  mode: playground
+- id: common/prep
+  language: common
+  languageLabel: 共通
+  level: prep
+  levelLabel: 開発の準備
+  title: 開発の準備
+  description: ターミナル、Git、PR、デバッグなど、チームで開発するための道具の使い方と、自分で調べて解決する方法を学ぶ。
+  mode: pull_request
+- id: typescript/intermediate
+  language: typescript
+  languageLabel: JavaScript / TypeScript
+  level: intermediate
+  levelLabel: 中級
+  title: JavaScript / TypeScript 中級
+  description: 既存のNext.jsアプリに、画面・API・DBにまたがる機能をチケットどおりに追加できるようになる。
+  mode: pull_request
+- id: ruby/intermediate
+  language: ruby
+  languageLabel: Ruby / Rails
+  level: intermediate
+  levelLabel: 中級
+  title: Ruby / Rails 中級
+  description: 既存のRailsアプリに、画面・DBにまたがる機能をチケットどおりに追加できるようになる。
+  mode: pull_request
+- id: swift/intermediate
+  language: swift
+  languageLabel: Swift
+  level: intermediate
+  levelLabel: 中級
+  title: Swift 中級
+  description: 既存のiOSアプリに、APIからデータを取得して表示する機能をチケットどおりに追加できるようになる。
+  mode: pull_request
+- id: typescript/advanced
+  language: typescript
+  languageLabel: JavaScript / TypeScript
+  level: advanced
+  levelLabel: 上級
+  title: JavaScript / TypeScript 上級
+  description: コードが保守しやすく安全か、本番で問題なく動くかを判断して直せるようになる。
+  mode: pull_request
+- id: ruby/advanced
+  language: ruby
+  languageLabel: Ruby / Rails
+  level: advanced
+  levelLabel: 上級
+  title: Rails 上級
+  description: Railsアプリの設計・性能・セキュリティ・運用の問題に気づいて直せるようになる。
+  mode: pull_request
+- id: swift/advanced
+  language: swift
+  languageLabel: Swift
+  level: advanced
+  levelLabel: 上級
+  title: Swift 上級
+  description: iOSアプリの設計・並行処理・セキュリティ・リリースの問題に気づいて直せるようになる。
+  mode: pull_request

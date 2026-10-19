@@ -1,0 +1,137 @@
+ticket: |
+  ## 背景
+  注文の金額を計算するプログラムで、お客様から「請求金額がおかしい」と問い合わせがありました。
+  コードには型を付けてあり、エディタにはいくつか型エラーが出ています。
+  型エラーを手がかりに、不具合をすべて直してください。
+
+  ## 仕様
+  - `calcSubtotal`: 注文の小計（単価 × 数量の合計、税抜）を返す
+  - `getRankDiscountRate`: 会員ランクの割引率（%）を返す。ゴールド 10、シルバー 5、一般 0
+  - `formatCoupon`: クーポンの表示用の文字列を返す
+    - クーポンコードがあるとき: `クーポン: SPRING10` のように、コードを大文字にして表示する
+    - クーポンコードがないとき: `クーポン: なし`
+
+  ## 受け入れ条件
+  - [ ] 型エラーがない
+  - [ ] サンプルの注文の小計が 4,166 円になる
+  - [ ] ゴールド会員の割引率が 10、シルバーが 5、一般が 0 になる
+  - [ ] クーポンコード `spring10` の注文では `クーポン: SPRING10` と表示される
+  - [ ] クーポンコードがない注文では `クーポン: なし` と表示される
+starter: |
+  type MemberRank = "general" | "silver" | "gold";
+
+  type OrderItem = {
+    productName: string;
+    unitPrice: number; // 税抜
+    quantity: number;
+  };
+
+  type Order = {
+    id: number;
+    rank: MemberRank;
+    items: OrderItem[];
+    couponCode?: string;
+  };
+
+  function calcSubtotal(order: Order): number {
+    let subtotal = 0;
+    for (const item of order.items) {
+      subtotal += item.price * item.quantity;
+    }
+    return subtotal;
+  }
+
+  function getRankDiscountRate(rank: MemberRank): number {
+    if (rank === "glod") return 10;
+    if (rank === "silver") return 5;
+    return 0;
+  }
+
+  function formatCoupon(order: Order): string {
+    return `クーポン: ${order.couponCode.toUpperCase()}`;
+  }
+
+  const sampleOrder: Order = {
+    id: 1001,
+    rank: "gold",
+    items: [
+      { productName: "国産りんごジュース 1L", unitPrice: 398, quantity: 3 },
+      { productName: "竹のまな板", unitPrice: 1980, quantity: 1 },
+      { productName: "ふっくら食パン", unitPrice: 248, quantity: 4 },
+    ],
+    couponCode: "spring10",
+  };
+
+  console.log(calcSubtotal(sampleOrder));
+  console.log(getRankDiscountRate(sampleOrder.rank));
+  console.log(formatCoupon(sampleOrder));
+solution: |
+  type MemberRank = "general" | "silver" | "gold";
+
+  type OrderItem = {
+    productName: string;
+    unitPrice: number; // 税抜
+    quantity: number;
+  };
+
+  type Order = {
+    id: number;
+    rank: MemberRank;
+    items: OrderItem[];
+    couponCode?: string;
+  };
+
+  function calcSubtotal(order: Order): number {
+    let subtotal = 0;
+    for (const item of order.items) {
+      subtotal += item.unitPrice * item.quantity;
+    }
+    return subtotal;
+  }
+
+  function getRankDiscountRate(rank: MemberRank): number {
+    if (rank === "gold") return 10;
+    if (rank === "silver") return 5;
+    return 0;
+  }
+
+  function formatCoupon(order: Order): string {
+    if (order.couponCode === undefined) {
+      return "クーポン: なし";
+    }
+    return `クーポン: ${order.couponCode.toUpperCase()}`;
+  }
+
+  const sampleOrder: Order = {
+    id: 1001,
+    rank: "gold",
+    items: [
+      { productName: "国産りんごジュース 1L", unitPrice: 398, quantity: 3 },
+      { productName: "竹のまな板", unitPrice: 1980, quantity: 1 },
+      { productName: "ふっくら食パン", unitPrice: 248, quantity: 4 },
+    ],
+    couponCode: "spring10",
+  };
+
+  console.log(calcSubtotal(sampleOrder));
+  console.log(getRankDiscountRate(sampleOrder.rank));
+  console.log(formatCoupon(sampleOrder));
+tests:
+  - name: サンプルの注文の小計が 4,166 円になる
+    code: |
+      expect(calcSubtotal(sampleOrder)).toBe(4166);
+  - name: ゴールド会員の割引率が 10、シルバーが 5、一般が 0 になる
+    code: |
+      expect(getRankDiscountRate("gold")).toBe(10);
+      expect(getRankDiscountRate("silver")).toBe(5);
+      expect(getRankDiscountRate("general")).toBe(0);
+  - name: 'クーポンコード spring10 の注文では「クーポン: SPRING10」と表示される'
+    code: |
+      expect(formatCoupon(sampleOrder)).toBe("クーポン: SPRING10");
+  - name: 'クーポンコードがない注文では「クーポン: なし」と表示される'
+    code: |
+      expect(formatCoupon({ id: 1002, rank: "general", items: [] })).toBe("クーポン: なし");
+hints:
+  - まず「提出して判定」を押して、型エラーの一覧（行番号とメッセージ）を確認しましょう。
+  - "`Property 'price' does not exist on type 'OrderItem'` は、`OrderItem` の型の定義を見ると、正しいプロパティ名が分かります。"
+  - "`is possibly 'undefined'` のエラーは、解説の「オプショナル」の例のように、値がないときの処理を先に書くと消えます。"

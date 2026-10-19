@@ -62,7 +62,7 @@ flowchart LR
 | 要素 | 内容 |
 | --- | --- |
 | アプリ | Next.js（App Router）＋ TypeScript。Vercelにデプロイ |
-| 認証 | Auth.js（GitHubプロバイダー）。ログインには後述のGitHub AppのOAuth機能を使い、ログインとリポジトリ連携を1つのAppにまとめる |
+| 認証 | Better Auth（GitHubプロバイダー）。Auth.js v5 は正式版が出ておらず、開発が Better Auth に引き継がれたため。M1 では GitHub OAuth App を使い、M3 で GitHub App の OAuth 機能に切り替えて、ログインとリポジトリ連携を1つのAppにまとめる |
 | DB | PostgreSQL（Vercel Marketplace経由のNeon）＋ Drizzle ORM |
 | 教材 | このリポジトリの `content/` 配下にMarkdownとYAMLで置く。ビルド時に読み込む |
 | ブラウザ内実行 | Monacoエディタ。JS/TSはWeb Workerで実行し、TSはブラウザ内で変換する（sucraseなど）。Rubyは ruby.wasm をWeb Workerで実行する。どちらも制限時間を過ぎたらWorkerごと停止する |

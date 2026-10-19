@@ -1,0 +1,132 @@
+ticket: |
+  ## 背景
+  在庫担当から、毎朝の発注作業のために次の3つを知りたいと依頼がありました。
+  商品データ（`products`）は、管理システムから出力したものです。
+
+  ## やること
+  1. `findOutOfStockNames`: 在庫切れの商品名の一覧を返す
+     - **公開中**（`published` が `true`）で、在庫が0の商品だけを対象にする（非公開の商品は売っていないので対象外）
+     - 商品データの並び順のまま返す
+  2. `countByCategory`: 公開中の商品の数を、カテゴリごとに数えて返す
+     - 例: `{ "飲料": 3, "食品": 1 }`
+  3. `calcInventoryValue`: 在庫金額（価格 × 在庫数）の合計を返す
+     - 公開・非公開に関係なく、すべての商品を対象にする
+
+  ## 受け入れ条件
+  - [ ] 在庫切れの商品名が「ふっくら食パン」「有機緑茶 500ml」「食器用スポンジ」の順で返る
+  - [ ] 非公開の商品（季節のギフトセット）は在庫切れの一覧に含まれない
+  - [ ] カテゴリごとの公開中の商品数が正しい（飲料3、食品1、キッチン用品1、文具1、日用品1）
+  - [ ] 在庫金額の合計が 31,716 円になる
+  - [ ] 商品が0件のときは、空の配列・空のオブジェクト・0 を返す
+starter: |
+  type Product = {
+    id: number;
+    name: string;
+    price: number; // 税抜
+    category: string;
+    stock: number;
+    published: boolean;
+  };
+
+  // 管理システムから出力した商品データ
+  const products: Product[] = [
+    { id: 1, name: "国産りんごジュース 1L", price: 398, category: "飲料", stock: 12, published: true },
+    { id: 2, name: "ふっくら食パン", price: 248, category: "食品", stock: 0, published: true },
+    { id: 3, name: "竹のまな板", price: 1980, category: "キッチン用品", stock: 5, published: true },
+    { id: 4, name: "有機緑茶 500ml", price: 158, category: "飲料", stock: 0, published: true },
+    { id: 5, name: "季節のギフトセット", price: 3980, category: "ギフト", stock: 0, published: false },
+    { id: 6, name: "ボールペン 3本セット", price: 330, category: "文具", stock: 40, published: true },
+    { id: 7, name: "天然水 2L", price: 128, category: "飲料", stock: 30, published: true },
+    { id: 8, name: "食器用スポンジ", price: 198, category: "日用品", stock: 0, published: true },
+  ];
+
+  /** 公開中で在庫切れの商品名の一覧 */
+  function findOutOfStockNames(products: Product[]): string[] {
+    // TODO
+    return [];
+  }
+
+  /** 公開中の商品の数をカテゴリごとに数える */
+  function countByCategory(products: Product[]): Record<string, number> {
+    // TODO
+    return {};
+  }
+
+  /** 在庫金額（価格 × 在庫数）の合計 */
+  function calcInventoryValue(products: Product[]): number {
+    // TODO
+    return 0;
+  }
+
+  console.log(findOutOfStockNames(products));
+  console.log(countByCategory(products));
+  console.log(calcInventoryValue(products));
+solution: |
+  type Product = {
+    id: number;
+    name: string;
+    price: number; // 税抜
+    category: string;
+    stock: number;
+    published: boolean;
+  };
+
+  const products: Product[] = [
+    { id: 1, name: "国産りんごジュース 1L", price: 398, category: "飲料", stock: 12, published: true },
+    { id: 2, name: "ふっくら食パン", price: 248, category: "食品", stock: 0, published: true },
+    { id: 3, name: "竹のまな板", price: 1980, category: "キッチン用品", stock: 5, published: true },
+    { id: 4, name: "有機緑茶 500ml", price: 158, category: "飲料", stock: 0, published: true },
+    { id: 5, name: "季節のギフトセット", price: 3980, category: "ギフト", stock: 0, published: false },
+    { id: 6, name: "ボールペン 3本セット", price: 330, category: "文具", stock: 40, published: true },
+    { id: 7, name: "天然水 2L", price: 128, category: "飲料", stock: 30, published: true },
+    { id: 8, name: "食器用スポンジ", price: 198, category: "日用品", stock: 0, published: true },
+  ];
+
+  function findOutOfStockNames(products: Product[]): string[] {
+    const names: string[] = [];
+    for (const product of products) {
+      if (product.published && product.stock === 0) {
+        names.push(product.name);
+      }
+    }
+    return names;
+  }
+
+  function countByCategory(products: Product[]): Record<string, number> {
+    const counts: Record<string, number> = {};
+    for (const product of products) {
+      if (!product.published) continue;
+      counts[product.category] = (counts[product.category] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  function calcInventoryValue(products: Product[]): number {
+    let total = 0;
+    for (const product of products) {
+      total += product.price * product.stock;
+    }
+    return total;
+  }
+tests:
+  - name: 在庫切れの商品名が並び順のまま返る
+    code: |
+      expect(findOutOfStockNames(products)).toEqual(["ふっくら食パン", "有機緑茶 500ml", "食器用スポンジ"]);
+  - name: 非公開の商品は在庫切れの一覧に含まれない
+    code: |
+      expect(findOutOfStockNames(products).includes("季節のギフトセット")).toBe(false);
+  - name: カテゴリごとの公開中の商品数が正しい
+    code: |
+      expect(countByCategory(products)).toEqual({ "飲料": 3, "食品": 1, "キッチン用品": 1, "文具": 1, "日用品": 1 });
+  - name: 在庫金額の合計が 31,716 円になる
+    code: |
+      expect(calcInventoryValue(products)).toBe(31716);
+  - name: 商品が0件のときは、空の配列・空のオブジェクト・0 を返す
+    code: |
+      expect(findOutOfStockNames([])).toEqual([]);
+      expect(countByCategory([])).toEqual({});
+      expect(calcInventoryValue([])).toBe(0);
+hints:
+  - 解説の「よく使うデータ処理のパターン」の2つ（抜き出す、種類ごとに数える）がそのまま使えます。
+  - "公開中かどうかは `product.published` で分かります。「公開中かつ在庫0」は `&&` で組み合わせます。"
+  - 繰り返しの中で、ある商品を飛ばしたいときは `continue;` と書くと、次の商品に進みます。

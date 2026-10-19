@@ -1,0 +1,112 @@
+ticket: |
+  ## 背景
+  さくらマートでクーポンを配ることになりました。販売チームから、クーポンの割引ルールの仕様書が届いています。
+  このルールを、注文の計算で使える関数として作ってください。今回は関数の形も用意していません。白紙から書きます。
+
+  ## 仕様書
+  ### 関数1: `calcCouponDiscount(amount, couponType, couponValue, minPurchase)`
+  クーポンの割引額を返す。引数はすべて数値（`couponType` だけ文字列）。
+
+  - `amount`（金額）が `minPurchase`（最低購入金額）より小さい場合は、割引しない（0を返す）
+  - `couponType` が `"amount"`（定額）の場合: `couponValue` 円を割り引く。ただし、割引額は `amount` を超えない
+  - `couponType` が `"percent"`（定率）の場合: `amount` の `couponValue` %を割り引く（端数は切り捨て）
+  - それ以外の `couponType` の場合は、割引しない
+
+  ### 関数2: `calcDiscountedAmount(subtotal, rank, couponType, couponValue, minPurchase)`
+  割引後の金額（税抜）を返す。
+
+  1. まず、会員ランクの割引をする（ゴールド 10%、シルバー 5%、それ以外 0%、端数は切り捨て）
+  2. 次に、ランク割引のあとの金額に対してクーポンを使う（最低購入金額も、ランク割引のあとの金額で判定する）
+
+  ## 受け入れ条件
+  - [ ] 3,000円に「500円引き・2,000円以上」のクーポンを使うと、割引額は500円
+  - [ ] 1,500円には「500円引き・2,000円以上」のクーポンは使えない（割引額0円）
+  - [ ] ちょうど2,000円なら「500円引き・2,000円以上」のクーポンを使える
+  - [ ] 300円に「500円引き」のクーポンを使うと、割引額は300円（金額を超えない）
+  - [ ] 3,333円に「10%引き」のクーポンを使うと、割引額は333円
+  - [ ] 知らない種類のクーポンでは割引しない
+  - [ ] ゴールド会員が10,000円の注文で「10%引き」を使うと、割引後は8,100円
+  - [ ] シルバー会員が2,100円の注文で「500円引き・2,000円以上」を使おうとすると、ランク割引後が1,995円になるのでクーポンは使えず、1,995円
+starter: |
+  // 仕様書（左のチケット）を読んで、
+  // calcCouponDiscount と calcDiscountedAmount の2つの関数を作ってください。
+  // 必要なら、ほかの関数を作って使ってもかまいません。
+
+solution: |
+  function getRankDiscountRate(rank: string): number {
+    if (rank === "gold") return 10;
+    if (rank === "silver") return 5;
+    return 0;
+  }
+
+  function calcCouponDiscount(
+    amount: number,
+    couponType: string,
+    couponValue: number,
+    minPurchase: number,
+  ): number {
+    if (amount < minPurchase) {
+      return 0;
+    }
+    if (couponType === "amount") {
+      return Math.min(couponValue, amount);
+    }
+    if (couponType === "percent") {
+      return Math.floor((amount * couponValue) / 100);
+    }
+    return 0;
+  }
+
+  function calcDiscountedAmount(
+    subtotal: number,
+    rank: string,
+    couponType: string,
+    couponValue: number,
+    minPurchase: number,
+  ): number {
+    const rankDiscount = Math.floor((subtotal * getRankDiscountRate(rank)) / 100);
+    const afterRank = subtotal - rankDiscount;
+    return afterRank - calcCouponDiscount(afterRank, couponType, couponValue, minPurchase);
+  }
+tests:
+  - name: 3,000円に「500円引き・2,000円以上」のクーポンを使うと、割引額は500円
+    code: |
+      expect(calcCouponDiscount(3000, "amount", 500, 2000)).toBe(500);
+  - name: 1,500円には「500円引き・2,000円以上」のクーポンは使えない
+    code: |
+      expect(calcCouponDiscount(1500, "amount", 500, 2000)).toBe(0);
+  - name: ちょうど2,000円なら「500円引き・2,000円以上」のクーポンを使える
+    code: |
+      expect(calcCouponDiscount(2000, "amount", 500, 2000)).toBe(500);
+  - name: 300円に「500円引き」のクーポンを使うと、割引額は300円
+    code: |
+      expect(calcCouponDiscount(300, "amount", 500, 0)).toBe(300);
+  - name: 3,333円に「10%引き」のクーポンを使うと、割引額は333円
+    code: |
+      expect(calcCouponDiscount(3333, "percent", 10, 0)).toBe(333);
+  - name: 知らない種類のクーポンでは割引しない
+    code: |
+      expect(calcCouponDiscount(3000, "free_shipping", 10, 0)).toBe(0);
+  - name: ゴールド会員が10,000円の注文で「10%引き」を使うと、割引後は8,100円
+    code: |
+      expect(calcDiscountedAmount(10000, "gold", "percent", 10, 0)).toBe(8100);
+  - name: シルバー会員の2,100円の注文では、ランク割引後が2,000円未満なのでクーポンを使えない
+    code: |
+      expect(calcDiscountedAmount(2100, "silver", "amount", 500, 2000)).toBe(1995);
+      expect(calcDiscountedAmount(5000, "general", "amount", 300, 3000)).toBe(4700);
+hints:
+  - |
+    まずは関数の「形」だけ書きましょう。次のように書いて、エラーが出ないことを確かめてから中身を書きます。
+
+    ```ts
+    function calcCouponDiscount(
+      amount: number,
+      couponType: string,
+      couponValue: number,
+      minPurchase: number,
+    ): number {
+      return 0;
+    }
+    ```
+  - "「割引額は amount を超えない」は、2つのうち小さいほうを返す `Math.min(a, b)` を使うと簡単に書けます。"
+  - "`calcDiscountedAmount` の中で `calcCouponDiscount` を呼び出しましょう。会員ランクの割引率は、レッスン3で作った関数が使えます。"

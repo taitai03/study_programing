@@ -1,0 +1,14 @@
+import "server-only";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
+
+const globalForDb = globalThis as unknown as {
+  client: ReturnType<typeof postgres> | undefined;
+};
+
+// 開発中のホットリロードで接続が増え続けないよう、クライアントを使い回す
+const client = globalForDb.client ?? postgres(process.env.DATABASE_URL!);
+if (process.env.NODE_ENV !== "production") globalForDb.client = client;
+
+export const db = drizzle(client, { schema });

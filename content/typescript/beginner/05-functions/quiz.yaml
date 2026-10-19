@@ -1,0 +1,25 @@
+questions:
+  - question: 送料のルールを1つの関数にまとめておくと、どんな良いことがありますか？
+    choices:
+      - プログラムが速く動く
+      - ルールが変わったときに直すのが1か所で済み、直し忘れによる食い違いが起きない
+      - 送料が安くなる
+      - エラーが出なくなる
+    answer: 1
+    explanation: 同じルールを何か所にも書くと、変更のときに直し忘れが起きます。1つの関数にまとめると、直すのは1か所だけです。
+  - question: "`function calcSubtotal(price: number, quantity: number): number` の `: number`（かっこの後ろ）は何を表していますか？"
+    choices:
+      - 引数の数
+      - 関数が返す値の型
+      - 関数の名前
+      - 関数を呼び出せる回数
+    answer: 1
+    explanation: 'かっこの後ろの `: number` は戻り値の型です。この関数は数値を返すことを表しています。'
+  - question: '次のアロー関数と同じ動きをするのはどれですか？ `const double = (n: number): number => n * 2;`'
+    choices:
+      - "`function double(n: number): number { return n * 2; }`"
+      - "`function double(n: number): number { n * 2; }`"
+      - "`const double = n * 2;`"
+      - "`function double(): number { return n * 2; }`"
+    answer: 0
+    explanation: アロー関数で `{ }` を省略すると、`=>` の右側の値がそのまま返されます。`function` で書く場合は `return` が必要です。

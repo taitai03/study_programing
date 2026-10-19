@@ -1,0 +1,59 @@
+ticket: |
+  ## 背景
+  商品ページに「まとめ買いしたときの税込金額と付与ポイント」を表示したいと、販売チームから依頼がありました。
+  まずは1つの商品で計算が合うかを確認します。
+
+  ## やること
+  エディタの `TODO` の部分を埋めて、計算を完成させてください。
+
+  - 小計（税抜）= 価格 × 数量
+  - 税込金額 = 小計に消費税10%を加えた金額（端数は切り捨て）
+  - 付与ポイント = 税込金額の1%（端数は切り捨て）
+
+  ## 受け入れ条件
+  - [ ] 小計（`subtotal`）が 1,194 になる
+  - [ ] 税込金額（`totalWithTax`）が 1,313 になる
+  - [ ] 付与ポイント（`points`）が 13 になる
+  - [ ] 出力に `国産りんごジュース 1L を 3 個: 税込 1313 円（13 ポイント付与）` と表示される
+starter: |
+  const productName = "国産りんごジュース 1L";
+  const price = 398; // 税抜価格
+  const quantity = 3;
+
+  // TODO: 小計（税抜）= 価格 × 数量
+  const subtotal = 0;
+
+  // TODO: 税込金額 = 小計に消費税10%を加えた金額（端数は切り捨て）
+  const totalWithTax = 0;
+
+  // TODO: 付与ポイント = 税込金額の1%（端数は切り捨て）
+  const points = 0;
+
+  console.log(`${productName} を ${quantity} 個: 税込 ${totalWithTax} 円（${points} ポイント付与）`);
+solution: |
+  const productName = "国産りんごジュース 1L";
+  const price = 398; // 税抜価格
+  const quantity = 3;
+
+  const subtotal = price * quantity;
+  const totalWithTax = Math.floor((subtotal * 110) / 100);
+  const points = Math.floor(totalWithTax / 100);
+
+  console.log(`${productName} を ${quantity} 個: 税込 ${totalWithTax} 円（${points} ポイント付与）`);
+tests:
+  - name: 小計（subtotal）が 1,194 になる
+    code: |
+      expect(subtotal).toBe(1194);
+  - name: 税込金額（totalWithTax）が 1,313 になる
+    code: |
+      expect(totalWithTax).toBe(1313);
+  - name: 付与ポイント（points）が 13 になる
+    code: |
+      expect(points).toBe(13);
+  - name: 出力に計算結果の文章が表示される
+    code: |
+      expect(logs[0]).toBe("国産りんごジュース 1L を 3 個: 税込 1313 円（13 ポイント付与）");
+hints:
+  - 小計は、すでにある変数 `price` と `quantity` を使って計算します。
+  - 税込金額は解説の「お金の計算は整数で行う」と同じ書き方で求められます。
+  - "1%は「100で割る」と同じです。切り捨てには `Math.floor(...)` を使います。"

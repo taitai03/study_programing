@@ -1,0 +1,95 @@
+ticket: |
+  ## 背景
+  カートの画面で、会員ランクの割引・送料・注文できるかどうかを判定する処理を作ります。
+  関数の形はすでに用意してあるので、中身（`TODO` の部分）を書いてください。
+
+  ## やること
+  1. `getRankDiscountRate`: 会員ランクから割引率（%）を返す
+     - `"gold"` なら 10、`"silver"` なら 5、それ以外は 0
+  2. `getShippingFee`: 税込金額から送料を返す
+     - 税込5,000円以上なら 0、それ以外は 550
+  3. `canAcceptOrder`: 注文を受け付けられるかを返す
+     - 在庫数が注文数以上 **かつ** 注文数が1〜10個の範囲なら `true`、それ以外は `false`
+
+  ## 受け入れ条件
+  - [ ] ゴールド会員の割引率が 10、シルバー会員が 5、一般会員が 0 になる
+  - [ ] 税込4,999円の送料が550円、5,000円と12,000円の送料が0円になる
+  - [ ] 在庫5個に対して3個の注文は受け付ける
+  - [ ] 在庫5個に対して6個の注文は受け付けない
+  - [ ] 0個や11個の注文は受け付けない（在庫が十分にあっても）
+  - [ ] ちょうど10個の注文は受け付ける
+starter: |
+  /** 会員ランクごとの割引率（%）を返す */
+  function getRankDiscountRate(rank: string): number {
+    // TODO: "gold" なら 10、"silver" なら 5、それ以外は 0 を返す
+    return 0;
+  }
+
+  /** 送料を返す（税込5,000円以上なら無料） */
+  function getShippingFee(totalWithTax: number): number {
+    // TODO
+    return 550;
+  }
+
+  /** 注文を受け付けられるか（在庫が足りていて、注文数が1〜10個） */
+  function canAcceptOrder(stock: number, quantity: number): boolean {
+    // TODO: && を使って条件を組み合わせる
+    return true;
+  }
+
+  // 動作確認用。自由に書き換えて試してください
+  console.log(getRankDiscountRate("gold"));
+  console.log(getShippingFee(4999));
+  console.log(canAcceptOrder(5, 3));
+solution: |
+  /** 会員ランクごとの割引率（%）を返す */
+  function getRankDiscountRate(rank: string): number {
+    if (rank === "gold") {
+      return 10;
+    }
+    if (rank === "silver") {
+      return 5;
+    }
+    return 0;
+  }
+
+  /** 送料を返す（税込5,000円以上なら無料） */
+  function getShippingFee(totalWithTax: number): number {
+    if (totalWithTax >= 5000) {
+      return 0;
+    }
+    return 550;
+  }
+
+  /** 注文を受け付けられるか（在庫が足りていて、注文数が1〜10個） */
+  function canAcceptOrder(stock: number, quantity: number): boolean {
+    return stock >= quantity && quantity >= 1 && quantity <= 10;
+  }
+tests:
+  - name: ゴールド会員の割引率が 10、シルバー会員が 5、一般会員が 0 になる
+    code: |
+      expect(getRankDiscountRate("gold")).toBe(10);
+      expect(getRankDiscountRate("silver")).toBe(5);
+      expect(getRankDiscountRate("general")).toBe(0);
+  - name: 税込4,999円の送料が550円、5,000円と12,000円の送料が0円になる
+    code: |
+      expect(getShippingFee(4999)).toBe(550);
+      expect(getShippingFee(5000)).toBe(0);
+      expect(getShippingFee(12000)).toBe(0);
+  - name: 在庫5個に対して3個の注文は受け付ける
+    code: |
+      expect(canAcceptOrder(5, 3)).toBe(true);
+  - name: 在庫5個に対して6個の注文は受け付けない
+    code: |
+      expect(canAcceptOrder(5, 6)).toBe(false);
+  - name: 0個や11個の注文は受け付けない（在庫が十分にあっても）
+    code: |
+      expect(canAcceptOrder(100, 0)).toBe(false);
+      expect(canAcceptOrder(100, 11)).toBe(false);
+  - name: ちょうど10個の注文は受け付ける
+    code: |
+      expect(canAcceptOrder(10, 10)).toBe(true);
+hints:
+  - "`getRankDiscountRate` は `if` と `else if`（または `return` を使った if の並び）で書けます。"
+  - "「以上」は `>=`、「以下」は `<=` です。境目の値（4,999円と5,000円、10個と11個）で確かめましょう。"
+  - "`canAcceptOrder` は、3つの条件（在庫が足りている、1個以上、10個以下）を `&&` でつなぎます。"
